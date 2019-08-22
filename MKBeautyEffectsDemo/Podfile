@@ -1,0 +1,8 @@
+platform :ios, '8.0'
+
+target 'MKBeautyEffectsDemo' do
+    
+    pod 'Masonry'
+    pod 'GPUImage'
+
+end
