@@ -52,12 +52,12 @@
         make.centerX.equalTo(self.view);
     }];
     
-    
-    _effectFilter = [[MKEffectFilter alloc] init];  
+    if (![MGFaceLicenseHandle getLicense]) {
+        _effectFilter = [[MKEffectFilter alloc] init];
+    }
 
     _beautifyFilter = [[GPUImageBeautifyFilter alloc] init];
     _beautifyFilter.intensity = 0.9;
-    
     
     [_videoCamera addTarget:_cameraPreview];
     [_videoCamera startCameraCapture];
