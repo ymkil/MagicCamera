@@ -34,7 +34,7 @@ NSString *const kGPUImageCombinationFragmentShaderString = SHADER_STRING
  {
      // 双边滤波
      highp vec4 bilateral = texture2D(inputImageTexture, textureCoordinate);
-     // 皮肤检测
+     // 边缘检测
      highp vec4 canny = texture2D(inputImageTexture2, textureCoordinate2);
      // 原图
      highp vec4 source = texture2D(inputImageTexture3,textureCoordinate3);
@@ -59,7 +59,7 @@ NSString *const kGPUImageCombinationFragmentShaderString = SHADER_STRING
      // mix = x⋅(1−a)+y⋅a
      highp vec4 fuse = vec4(mix(source.rgb,bilateral.rgb,currentIntensity), 1.0);
      
-     //精准磨皮 肤色
+     //精准磨皮 
      lowp float r = source.r;
      lowp float g = source.g;
      lowp float b = source.b;
