@@ -131,7 +131,6 @@ static int pointsNum = 106;
 
     //获取人脸数据
     [self detectImage:outputFramebuffer.image];
-    NSLog(@"width = %f height = %f",outputFramebuffer.image.size.width,outputFramebuffer.image.size.height);
     [outputFramebuffer unlock];
     outputFramebuffer = nil;
 }
@@ -167,6 +166,9 @@ static int pointsNum = 106;
 // 检测图片
 -(void)detectImage:(UIImage *)image {
     if (self.markManager.status !=MGMarkWorking) {
+        MKLandmarkManager.shareManager.detectionWidth = image.size.width;
+        MKLandmarkManager.shareManager.detectionHeight = image.size.height;
+
 //        dispatch_async(_detectImageQueue, ^{
             @autoreleasepool {
                 MGImageData *imageData = [[MGImageData alloc] initWithImage:image];

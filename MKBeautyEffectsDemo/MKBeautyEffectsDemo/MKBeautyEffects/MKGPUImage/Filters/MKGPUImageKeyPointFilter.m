@@ -143,14 +143,12 @@ NSString *const kMKGPUImageKeyPointFragmentShaderString = SHADER_STRING
     GLfloat tempPoint[pointCount * 3];
     GLubyte indices[pointCount];
     
+    
     for (int i = 0; i < pointArray.count; i ++) {
         CGPoint pointer = [pointArray[i] CGPointValue];
-        
-        GLfloat top = [self changeToGLPointT:pointer.x];
-        GLfloat left = [self changeToGLPointL:pointer.y];
-        
-        tempPoint[i*3+0]=top;
-        tempPoint[i*3+1]=left;
+       
+        tempPoint[i*3+0]=pointer.x;
+        tempPoint[i*3+1]=pointer.y;
         tempPoint[i*3+2]=0.0f;
         
         indices[i]=i;
@@ -159,16 +157,6 @@ NSString *const kMKGPUImageKeyPointFragmentShaderString = SHADER_STRING
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_TRUE, 0, tempPoint );
     glEnableVertexAttribArray(_keyPointPositionAttribute);
     glDrawElements(GL_POINTS, (GLsizei)sizeof(indices)/sizeof(GLubyte), GL_UNSIGNED_BYTE, indices);
-}
-
-- (GLfloat)changeToGLPointT:(CGFloat)x{
-    GLfloat tempX = (x - _videoFrameW/2) / (_videoFrameW/2);
-    
-    return tempX;
-}
-- (GLfloat)changeToGLPointL:(CGFloat)y{
-    GLfloat tempY = (_videoFrameH/2 - (_videoFrameH - y)) / (_videoFrameH/2) + 0.04;
-    return tempY;
 }
 
 
