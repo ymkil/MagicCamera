@@ -1,6 +1,0 @@
-platform :ios, '8.0'
-
-target 'MagicCamera' do
-    pod 'Masonry'
-    pod 'GPUImage'
-end

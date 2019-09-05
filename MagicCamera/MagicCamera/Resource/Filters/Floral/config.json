@@ -1,8 +1,0 @@
-{
-  "fragment" : "fragment.glsl",
-  "icon" : "floral.jpg",
-  "name" : "花束",
-  "images" : [
-    "image_1.png"
-  ]
-}

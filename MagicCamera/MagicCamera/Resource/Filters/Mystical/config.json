@@ -1,8 +1,0 @@
-{
-  "fragment" : "fragment.glsl",
-  "icon" : "mystical.jpg",
-  "name" : "神秘",
-  "images" : [
-    "image_1.png"
-  ]
-}
