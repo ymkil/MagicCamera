@@ -7,10 +7,64 @@
 //
 
 #import "MKCameraFilterView.h"
+#import "MKFilterModel.h"
 #import "MKHeader.h"
 
 #define kCameraFilterViewItemSize                 60
 #define kCameraFilterCollectionViewHeight         100
+
+
+@interface MKFilterCell : UICollectionViewCell
+
+@property (nonatomic, strong) UIImageView *iconImV;
+@property (nonatomic, strong) UILabel *titleLabel;
+
+@property (nonatomic, strong) MKFilterModel *model;
+
+@end
+
+@implementation MKFilterCell
+
+-(instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    
+    if (self) {
+        [self setUI];
+        self.layer.cornerRadius = 22.0f;
+        self.layer.masksToBounds = YES;
+    }
+    
+    return self;
+}
+
+- (void)setUI
+{
+    _iconImV = [[UIImageView alloc] init];
+    _iconImV.frame = CGRectMake(0, 0, kCameraFilterViewItemSize, kCameraFilterViewItemSize);
+    _iconImV.contentMode = UIViewContentModeScaleToFill;
+    [self.contentView addSubview:_iconImV];
+    
+    _titleLabel = [[UILabel alloc] init];
+    _titleLabel.frame = CGRectMake(0, kCameraFilterViewItemSize - 18, kCameraFilterViewItemSize, 18);
+    _titleLabel.font = [UIFont systemFontOfSize:10];
+    _titleLabel.textColor = [UIColor whiteColor];
+    _titleLabel.textAlignment = NSTextAlignmentCenter;
+    _titleLabel.backgroundColor = [UIColor colorWithRed:8/255.0 green:157/255.0 blue:184/255.0 alpha:0.6f];
+    [self.contentView addSubview:_titleLabel];
+}
+
+- (void)setModel:(MKFilterModel *)model
+{
+    _model = model;
+    
+    if (model) {
+        _titleLabel.text = model.name;
+        _iconImV.image = [UIImage imageWithContentsOfFile:model.icon];
+    }
+}
+
+
+@end
 
 @interface MKCameraFilterView()<UICollectionViewDelegate,UICollectionViewDataSource>
 
@@ -27,7 +81,6 @@
     if (self = [super initWithFrame:frame]) {
         [self setHidden:YES];
         self.alpha = 0;
-        self.backgroundColor = [UIColor blackColor];
         [self buildCollectionView];
     }
     
@@ -47,7 +100,7 @@
 - (void)buildCollectionView
 {
     UICollectionViewFlowLayout *layout = [self collectionViewForFlowLayout];
-    UICollectionView *collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 30, self.frame.size.width, kCameraFilterCollectionViewHeight) collectionViewLayout:layout];
+    UICollectionView *collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 30, self.frame.size.width, kCameraFilterViewItemSize) collectionViewLayout:layout];
     [collectionView setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:0 alpha:0.3f]];
     collectionView.delegate = self;
     collectionView.dataSource = self;
@@ -55,7 +108,7 @@
     collectionView.showsVerticalScrollIndicator = NO;
     collectionView.showsHorizontalScrollIndicator = NO;
     collectionView.backgroundColor = [UIColor clearColor];
-    [collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"UICollectionViewCell"];
+    [collectionView registerClass:[MKFilterCell class] forCellWithReuseIdentifier:@"MKFilterCell"];
     [self addSubview:collectionView];
     _collectionView = collectionView;
 }
@@ -67,6 +120,7 @@
         self.slider.hidden = YES;
         self.slider.tintColor = [UIColor colorWithRed:8/255.0 green:157/255.0 blue:184/255.0 alpha:1.0];
         self.slider.maximumTrackTintColor = [UIColor whiteColor];
+        [self.slider addTarget:self action:@selector(sliderClick:) forControlEvents:UIControlEventValueChanged];
         [self addSubview:self.slider];
         
         self.sliderLabel = [[UILabel alloc] initWithFrame:CGRectMake(self.slider.frame.origin.x+self.slider.value*(kScreenW-90)-8, self.slider.frame.origin.y-30, 40, 30)];
@@ -116,6 +170,7 @@
 //        [_collectionView scrollToItemAtIndexPath:_lastSelectedIndexPath atScrollPosition:UICollectionViewScrollPositionCenteredHorizontally animated:YES];
 //        [self selectConllectionViewAtIndex:_lastSelectedIndexPath];
     }];
+    [_collectionView reloadData];
 }
 
 - (BOOL)hide
@@ -139,22 +194,35 @@
     return YES;
 }
 
+//slider的事件
+-(void)sliderClick:(UISlider *)sender{
+    self.sliderLabel.text = [NSString stringWithFormat:@"%.0f", floor(sender.value*100)];
+    _changeIntensityValueBlock(sender.value);
+}
 
 #pragma mark - UICollectionViewDataSource && UICollectionViewDelegate
+
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return _filterModel.count;
+    return _filterModels.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return [UICollectionViewCell new];
+    MKFilterCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"MKFilterCell" forIndexPath:indexPath];
+    cell.model = _filterModels[indexPath.row];
+    
+    return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-
+    self.selectFilterModelBlock(_filterModels[indexPath.row]);
+    
+    [self toggleSliderView];
 }
 
 
 @end
+
+

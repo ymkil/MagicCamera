@@ -22,7 +22,7 @@ dispatch_queue_attr_t MKGPUImageDefaultQueueAttribute(void)
     return nil;
 }
 
-void runAYSynchronouslyOnContextQueue(MKGPUImageContext *context, void (^block)(void))
+void runMSynchronouslyOnContextQueue(MKGPUImageContext *context, void (^block)(void))
 {
     dispatch_queue_t videoProcessingQueue = [context contextQueue];
     if (videoProcessingQueue) {
@@ -167,6 +167,47 @@ static int specificKey;
     }
     
     return _framebufferCache;
+}
+
+- (void)useImageProcessingContext;
+{
+    [self useAsCurrentContext];
+}
+
+- (GLint)maximumTextureSizeForThisDevice;
+{
+    static dispatch_once_t pred;
+    static GLint maxTextureSize = 0;
+    
+    dispatch_once(&pred, ^{
+        [self useImageProcessingContext];
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+    });
+    
+    return maxTextureSize;
+}
+
+- (CGSize)sizeThatFitsWithinATextureForSize:(CGSize)inputSize;
+{
+    GLint maxTextureSize = [self maximumTextureSizeForThisDevice];
+    if ( (inputSize.width < maxTextureSize) && (inputSize.height < maxTextureSize) )
+    {
+        return inputSize;
+    }
+    
+    CGSize adjustedSize;
+    if (inputSize.width > inputSize.height)
+    {
+        adjustedSize.width = (CGFloat)maxTextureSize;
+        adjustedSize.height = ((CGFloat)maxTextureSize / inputSize.width) * inputSize.height;
+    }
+    else
+    {
+        adjustedSize.height = (CGFloat)maxTextureSize;
+        adjustedSize.width = ((CGFloat)maxTextureSize / inputSize.height) * inputSize.width;
+    }
+    
+    return adjustedSize;
 }
 
 @end

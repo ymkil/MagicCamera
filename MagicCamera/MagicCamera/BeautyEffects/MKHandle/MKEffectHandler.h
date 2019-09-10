@@ -12,6 +12,8 @@
 #import <OpenGLES/ES2/glext.h>
 #import "MKGPUImageConstants.h"
 
+#import "MKFilterModel.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MKEffectHandler : NSObject
@@ -26,6 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, assign) MKGPUImageRotationMode rotateMode;
 
+@property(nonatomic, strong)MKFilterModel *filterModel;
+
+// 强度 (0~1)
+@property (nonatomic, assign) CGFloat intensity;
+
 /**
  处理纹理数据
  
@@ -34,9 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
  @param height 高度
  */
 - (void)processWithTexture:(GLuint)texture width:(GLint)width height:(GLint)height;
-
-
-
 
 @end
 

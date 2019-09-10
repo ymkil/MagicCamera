@@ -40,7 +40,7 @@
     
     _context = context;
     
-    runAYSynchronouslyOnContextQueue(context, ^{
+    runMSynchronouslyOnContextQueue(context, ^{
         [context useAsCurrentContext];
         dataProgram = [context programForVertexShaderString:kMKGPUImageVertexShaderString fragmentShaderString:kMKGPUImagePassthroughFragmentShaderString];
         
@@ -103,7 +103,7 @@
     _textureWidth = width;
     _textureHeight = height;
     
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         
         if (!framebuffer){
@@ -122,7 +122,7 @@
 }
 
 -(void)dealloc{
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         
         if (framebuffer){
@@ -150,7 +150,7 @@
 
 - (void)newFrameReady;
 {
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         
         [self renderAtInternalSize];

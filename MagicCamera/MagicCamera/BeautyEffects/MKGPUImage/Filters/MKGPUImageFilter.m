@@ -49,7 +49,7 @@ NSString *const kMKGPUImagePassthroughFragmentShaderString = SHADER_STRING
     
     self.context = context;
     
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         
         filterProgram = [self.context programForVertexShaderString:vertexShaderString fragmentShaderString:fragmentShaderString];

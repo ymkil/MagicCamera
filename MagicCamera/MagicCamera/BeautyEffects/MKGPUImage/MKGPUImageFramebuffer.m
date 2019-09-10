@@ -82,7 +82,7 @@
 
 - (void)generateFramebuffer;
 {
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         
         glGenFramebuffers(1, &framebuffer);
@@ -148,7 +148,7 @@
 
 - (void)destroyFramebuffer;
 {
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         
         if (framebuffer)

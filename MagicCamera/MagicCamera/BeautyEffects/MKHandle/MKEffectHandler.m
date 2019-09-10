@@ -10,10 +10,14 @@
 #import "MKGPUImageTextureInput.h"
 #import "MKGPUImageTextureOutput.h"
 
+#import "MGFaceLicenseHandle.h"
 #import "MKGPUImageTrackOutput.h"
 
 #import "MKGPUImageKeyPointFilter.h"
+#import "MKGPUImageLookupFilter.h"
 #import "MKGPUImage2DTextTestFilter.h"
+
+
 
 @interface MKEffectHandler()
 {
@@ -34,6 +38,7 @@
 @property (nonatomic, strong) MKGPUImageTrackOutput *trackOutput;
 
 @property (nonatomic, strong) MKGPUImageKeyPointFilter *keyPointfilter;
+@property (nonatomic, strong) MKGPUImageLookupFilter *lookupFilter;
 @property (nonatomic, strong) MKGPUImage2DTextTestFilter *testFilter;
 
 @property (nonatomic, assign) BOOL initCommonProcess;
@@ -70,6 +75,7 @@
         _trackOutput = [[MKGPUImageTrackOutput alloc] initWithContext:_glContext];
         
         _keyPointfilter = [[MKGPUImageKeyPointFilter alloc] initWithContext:_glContext];
+        _lookupFilter = [[MKGPUImageLookupFilter alloc] initWithContext:_glContext];
         _testFilter = [[MKGPUImage2DTextTestFilter alloc] initWithContext:_glContext];
     }
     return self;
@@ -98,8 +104,12 @@
         NSMutableArray *filterChainArray = [NSMutableArray array];
     
         [filterChainArray addObject:self.keyPointfilter];
+        [filterChainArray addObject:self.lookupFilter];
         [filterChainArray addObject:self.testFilter];
-        [self.commonInputFilter addTarget:self.trackOutput];
+        
+        if (![MGFaceLicenseHandle getLicense]) {
+            [self.commonInputFilter addTarget:self.trackOutput];
+        }
         
         if (filterChainArray.count > 0) {
             [self.commonInputFilter addTarget:[filterChainArray firstObject]];
@@ -193,6 +203,26 @@
 
 - (void)dealloc{
     [self destroy];
+}
+
+#pragma mark -
+#pragma mark handle
+
+-(void)setFilterModel:(MKFilterModel *)filterModel
+{
+    _filterModel = filterModel;
+    
+    if (filterModel.type == MKFilterTypeStyle) {
+        _lookupFilter.lookup = [UIImage imageWithContentsOfFile:filterModel.image];
+    }
+
+}
+
+-(void)setIntensity:(CGFloat)intensity
+{
+    if (_filterModel.type == MKFilterTypeStyle) {
+        _lookupFilter.intensity = intensity;
+    }
 }
 
 

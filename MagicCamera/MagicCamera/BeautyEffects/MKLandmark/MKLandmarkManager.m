@@ -29,7 +29,6 @@ static MKLandmarkManager *manager = nil;
         for (int i = 0; i < faceData.count; i ++) {
             ((MGFaceInfo *)faceData[i]).points = [self conversionCoordinatePoint:((MGFaceInfo *)faceData[i]).points];
             [datas addObject:[[MKFaceInfo alloc] initWithInfo:faceData[i]]];
-            NSLog(@"landmark - %@",((MGFaceInfo *)faceData[i]).points);
         }
         _faceData = datas;
     }

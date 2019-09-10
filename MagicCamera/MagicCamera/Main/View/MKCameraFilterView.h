@@ -13,7 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MKCameraFilterView : UIView
 
-@property(nonatomic, strong) NSArray<MKFilterModel *>* filterModel;
+@property (nonatomic, strong) NSArray<MKFilterModel *> *filterModels;
+
+@property (nonatomic, copy) void (^selectFilterModelBlock)(MKFilterModel*);
+@property (nonatomic, copy) void (^changeIntensityValueBlock)(float);
 
 - (void)toggle;
 

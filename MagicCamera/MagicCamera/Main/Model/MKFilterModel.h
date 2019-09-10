@@ -20,12 +20,15 @@ typedef NS_ENUM(NSInteger, MKFilterType)
 @interface MKFilterModel : NSObject
 
 @property (nonatomic, assign) MKFilterType type;
+@property (nonatomic, strong) NSString *fileName;
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *icon;
-@property (nonatomic, strong) NSString *fragmentShader;
+@property (nonatomic, strong) NSString *image;
 @property (nonatomic, assign) BOOL isAdjust;
 @property (nonatomic, assign) float currentAlphaValue;
 @property (nonatomic, strong) NSArray<NSString *> *textureImages;
+
++ (NSArray<MKFilterModel *> *)buildFilterModelsWithPath:(NSString *)path whitType:(MKFilterType)type;
 
 @end
 

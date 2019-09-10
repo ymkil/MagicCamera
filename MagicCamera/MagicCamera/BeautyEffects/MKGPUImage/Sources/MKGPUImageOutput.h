@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
     CGSize inputTextureSize;
 }
 
+@property(readwrite, nonatomic) BOOL shouldSmoothlyScaleOutput;
 @property (nonatomic, weak) MKGPUImageContext *context;
 @property(readwrite, nonatomic) MKGPUTextureOptions outputTextureOptions;
 

@@ -8,6 +8,7 @@
 
 #import "MKCameraView.h"
 #import "MKCameraFilterView.h"
+#import "MKFilterModel.h"
 #import "MKHeader.h"
 #import <Masonry/Masonry.h>
 
@@ -19,6 +20,8 @@
 @property (nonatomic, strong) UIButton *filterStyleBt;
 @property (nonatomic, strong) UIButton *beautifyBt;
 
+@property (nonatomic, strong) NSArray<MKFilterModel *> *styleFilterModels;
+
 @end
 
 @implementation MKCameraView
@@ -27,6 +30,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         [self setupUI];
+        [self generateDataSource];
     }
     
     return self;
@@ -34,7 +38,21 @@
 
 - (void)setupUI
 {
-    _filterView = [[MKCameraFilterView alloc] initWithFrame:CGRectMake(0, kScreenH - 65 - 130 - 40, kScreenW, 130)];
+    weakSelf();
+    
+    _filterView = [[MKCameraFilterView alloc] initWithFrame:CGRectMake(0, kScreenH - 65 - 90 - 40, kScreenW, 90)];
+    
+    _filterView.selectFilterModelBlock = ^(MKFilterModel *model) {
+        if (wself.delegate) {
+            [wself.delegate alterFilterModel:model];
+        }
+    };
+    
+    _filterView.changeIntensityValueBlock = ^(float intensity) {
+        if (wself.delegate) {
+            [wself.delegate alterIntensity:intensity];
+        }
+    };
     
     _effectBt = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.effectBt setImage:[UIImage imageNamed:@"bt_camera_effect"] forState:UIControlStateNormal];
@@ -78,14 +96,20 @@
 }
 
 - (void)onFilterStyleBtClick:(UIButton *)bt {
-    
+    _filterView.filterModels = _styleFilterModels;
+    [_filterView toggle];
 }
 
 - (void)onBeautifyBtClick:(UIButton *)bt {
     
-    
-    [_filterView toggle];
+
 }
 
+#pragma mark - PublicMethod
+
+- (void)generateDataSource
+{
+    _styleFilterModels = [MKFilterModel buildFilterModelsWithPath:kStyleFilterPath whitType:MKFilterTypeStyle];
+}
 
 @end

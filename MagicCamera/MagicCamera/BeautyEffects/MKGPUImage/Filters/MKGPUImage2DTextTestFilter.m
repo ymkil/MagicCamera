@@ -7,9 +7,12 @@
 //
 
 #import "MKGPUImage2DTextTestFilter.h"
+#import "MKGPUImagePicture.h"
 #import "MKHeader.h"
 
 #import "MKLandmarkManager.h"
+
+#import <GPUImage/GPUImage.h>
 
 #import <GLKit/GLKit.h>
 
@@ -158,17 +161,26 @@ NSString *const kMKGPUImage2DTextTestFragmentShaderString = SHADER_STRING
         0.0f, 1.0f,
         1.0f, 1.0f,
     };
-        
+    
+    
+    GPUImagePicture *picture1 = [[GPUImagePicture alloc] initWithImage:[UIImage imageNamed:@"F_tsh_008"]];
+    GPUImageFramebuffer *frameBuffer1 =  [picture1 framebufferForOutput];
+    
+//    MKGPUImagePicture *picture = [[MKGPUImagePicture alloc] initWithContext:self.context withImage:[UIImage imageNamed:@"F_tsh_008"]];
+//    MKGPUImageFramebuffer *frameBuffer = [picture framebufferForOutput];
+//    [frameBuffer lock];
+//    [frameBuffer activateFramebuffer];
+    
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, _textureInfo.name);
+    glBindTexture(GL_TEXTURE_2D, [frameBuffer1 texture]);
     
     glUniform1i(_inputTextureUniform, 3);
+//    [frameBuffer unlock];
     
     glVertexAttribPointer(_positionAttribute, 2, GL_FLOAT, 0, 0, tempPoint);
     glEnableVertexAttribArray(_positionAttribute);
     glVertexAttribPointer(_inTextureAttribute, 2, GL_FLOAT, 0, 0, textureCoordinates);
     glEnableVertexAttribArray(_inTextureAttribute);
-    
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glDisable(GL_BLEND);

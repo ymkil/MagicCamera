@@ -18,7 +18,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class MKGPUImageContext;
-void runAYSynchronouslyOnContextQueue(MKGPUImageContext *context, void (^block)(void));
+void runMSynchronouslyOnContextQueue(MKGPUImageContext *context, void (^block)(void));
 
 @interface MKGPUImageContext : NSObject
 
@@ -39,6 +39,8 @@ void runAYSynchronouslyOnContextQueue(MKGPUImageContext *context, void (^block)(
 - (void)presentBufferForDisplay;
 
 - (MKGLProgram *)programForVertexShaderString:(NSString *)vertexShaderString fragmentShaderString:(NSString *)fragmentShaderString;
+
+- (CGSize)sizeThatFitsWithinATextureForSize:(CGSize)inputSize;
 
 @end
 

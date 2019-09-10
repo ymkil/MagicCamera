@@ -66,7 +66,7 @@
 - (MKGPUImageFramebuffer *)fetchFramebufferForSize:(CGSize)framebufferSize textureOptions:(MKGPUTextureOptions)textureOptions missCVPixelBuffer:(BOOL)missCVPixelBuffer;
 {
     __block MKGPUImageFramebuffer *framebufferFromCache = nil;
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         NSString *lookupHash = [self hashForSize:framebufferSize textureOptions:textureOptions missCVPixelBuffer:missCVPixelBuffer];
         
         
@@ -106,7 +106,7 @@
 {
     [framebuffer clearAllLocks];
     
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         CGSize framebufferSize = framebuffer.size;
         MKGPUTextureOptions framebufferTextureOptions = framebuffer.textureOptions;
         NSString *lookupHash = [self hashForSize:framebufferSize textureOptions:framebufferTextureOptions missCVPixelBuffer:framebuffer.missCVPixelBuffer];

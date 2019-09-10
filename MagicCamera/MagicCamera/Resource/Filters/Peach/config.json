@@ -1,8 +1,5 @@
 {
-  "fragment" : "fragment.glsl",
-  "icon" : "peach.jpg",
-  "name" : "红润",
-  "images" : [
-    "image_1.png"
-  ]
+  "icon" : "peach.png",
+  "name" : "桃花",
+  "image" : "image.jpg"
 }

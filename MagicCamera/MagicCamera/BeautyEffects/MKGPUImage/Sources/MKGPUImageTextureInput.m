@@ -30,7 +30,7 @@
         return nil;
     }
     
-    runAYSynchronouslyOnContextQueue(context, ^{
+    runMSynchronouslyOnContextQueue(context, ^{
         [context useAsCurrentContext];
         
         dataProgram = [context programForVertexShaderString:kMKGPUImageVertexShaderString fragmentShaderString:kMKGPUImagePassthroughFragmentShaderString];
@@ -58,7 +58,7 @@
 }
 
 - (void)processWithBGRATexture:(GLint)texture width:(int)width height:(int)height{
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         [dataProgram use];
         

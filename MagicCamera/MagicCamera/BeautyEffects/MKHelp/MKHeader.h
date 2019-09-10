@@ -12,6 +12,9 @@
 #define kScreenW [UIScreen mainScreen].bounds.size.width
 #define kScreenH [UIScreen mainScreen].bounds.size.height
 
+// 滤镜路径
+#define kStyleFilterPath         [[NSBundle mainBundle] pathForResource:@"Filters" ofType:nil]
+
 // 强弱引用
 #define weakSelf()          __weak typeof(self) wself = self;
 #define strongSelf()        __strong typeof(self) self = wself;

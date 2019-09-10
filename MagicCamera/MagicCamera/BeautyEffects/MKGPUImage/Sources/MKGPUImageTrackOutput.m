@@ -57,7 +57,7 @@ static int pointsNum = 106;
     
     _context = context;
     
-    runAYSynchronouslyOnContextQueue(context, ^{
+    runMSynchronouslyOnContextQueue(context, ^{
         [context useAsCurrentContext];
         
         dataProgram = [context programForVertexShaderString:kMKGPUImageVertexShaderString fragmentShaderString:kMKGPUImagePassthroughFragmentShaderString];
@@ -180,13 +180,13 @@ static int pointsNum = 106;
                 [imageData releaseImageData];
                 
                 if (faceArray.count > 0) {
-                    NSLog(@"face count : %lu", (unsigned long)faceArray.count);
+//                    NSLog(@"face count : %lu", (unsigned long)faceArray.count);
                     MGFaceInfo *faceInfo = faceArray[0];
                     [self.markManager GetGetLandmark:faceInfo isSmooth:YES pointsNumber:pointsNum];
                     [self.markManager GetAttribute3D:faceInfo];
-                    NSLog(@"landmark - %@",faceInfo.points);
+//                    NSLog(@"landmark - %@",faceInfo.points);
                 }else{
-                    NSLog(@"no face detected");
+//                    NSLog(@"no face detected");
                 }
 
                 MKLandmarkManager.shareManager.faceData = faceArray;
@@ -212,7 +212,7 @@ static int pointsNum = 106;
 }
 
 - (void)newFrameReady {
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         
         [self renderAtInternalSize];

@@ -31,6 +31,7 @@
     return self;
 }
 
+
 - (void)renderToTextureWithVertices:(const GLfloat *)vertices textureCoordinates:(const GLfloat *)textureCoordinates;{
     
     //------------->绘制特效图像<--------------//
@@ -44,6 +45,17 @@
     //------------->绘制特效图像<--------------//
     
     [super renderToTextureWithVertices:vertices textureCoordinates:textureCoordinates];
+}
+
+-(void)setFilterModel:(MKFilterModel *)filterModel
+{
+    _effectHandler.filterModel = filterModel;
+}
+
+// 强度 (0~1)
+-(void)setIntensity:(CGFloat)intensity
+{
+    _effectHandler.intensity = intensity;
 }
 
 @end

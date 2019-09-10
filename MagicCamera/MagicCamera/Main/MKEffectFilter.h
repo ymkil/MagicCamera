@@ -7,10 +7,16 @@
 //
 
 #import "GPUImageFilter.h"
+#import "MKFilterModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MKEffectFilter : GPUImageFilter
+
+-(void)setFilterModel:(MKFilterModel *)filterModel;
+
+// 强度 (0~1)
+-(void)setIntensity:(CGFloat)intensity;
 
 @end
 

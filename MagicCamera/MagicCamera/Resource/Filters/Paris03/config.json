@@ -1,8 +1,0 @@
-{
-  "fragment" : "fragment.glsl",
-  "icon" : "paris03.jpg",
-  "name" : "纽约",
-  "images" : [
-    "image_1.png"
-  ]
-}

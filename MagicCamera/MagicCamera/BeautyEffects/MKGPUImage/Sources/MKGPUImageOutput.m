@@ -10,6 +10,7 @@
 
 @implementation MKGPUImageOutput
 
+@synthesize shouldSmoothlyScaleOutput = _shouldSmoothlyScaleOutput;
 @synthesize outputTextureOptions = _outputTextureOptions;
 
 #pragma mark -
@@ -68,7 +69,7 @@
         return;
     }
     
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [targets addObject:newTarget];
     });
 }
@@ -80,14 +81,14 @@
         return;
     }
     
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [targets removeObject:targetToRemove];
     });
 }
 
 - (void)removeAllTargets;
 {
-    runAYSynchronouslyOnContextQueue(self.context, ^{
+    runMSynchronouslyOnContextQueue(self.context, ^{
         [targets removeAllObjects];
     });
 }
