@@ -183,7 +183,7 @@ static int pointsNum = 106;
 //                    NSLog(@"face count : %lu", (unsigned long)faceArray.count);
                     MGFaceInfo *faceInfo = faceArray[0];
                     [self.markManager GetGetLandmark:faceInfo isSmooth:YES pointsNumber:pointsNum];
-                    [self.markManager GetAttribute3D:faceInfo];
+//                    [self.markManager GetAttribute3D:faceInfo];
 //                    NSLog(@"landmark - %@",faceInfo.points);
                 }else{
 //                    NSLog(@"no face detected");

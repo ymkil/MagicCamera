@@ -23,9 +23,13 @@ NSString *const kMKGPUImage2DTextTestVertexShaderString = SHADER_STRING
  
  varying vec2 textureCoordinate;
  
+ uniform mat4 projectionMatrix;
+ uniform mat4 viewMatrix;
+ uniform mat4 modelViewMatrix;
+ 
  void main()
  {
-     gl_Position = vPosition;
+     gl_Position = projectionMatrix * viewMatrix * modelViewMatrix * vPosition;
      textureCoordinate = in_texture;
  }
  );
@@ -53,6 +57,14 @@ NSString *const kMKGPUImage2DTextTestFragmentShaderString = SHADER_STRING
     GLint _inputTextureUniform;
     
     GLKTextureInfo* _textureInfo;
+    
+    GLKMatrix4 projectionMatrix;
+    GLKMatrix4 viewMatrix;
+    GLKMatrix4 modelViewMatrix;
+    
+    GLuint projectionMatrixSlot;
+    GLuint viewMatrixSlot;
+    GLuint modelViewMatrixSlot;
 }
 
 @end
@@ -85,10 +97,19 @@ NSString *const kMKGPUImage2DTextTestFragmentShaderString = SHADER_STRING
     _inTextureAttribute = [_2DTextProgram attributeIndex:@"in_texture"];
     _inputTextureUniform = [_2DTextProgram uniformIndex:@"inputImageTexture"];
     
+    projectionMatrixSlot = [_2DTextProgram uniformIndex:@"projectionMatrix"];
+    viewMatrixSlot = [_2DTextProgram uniformIndex:@"viewMatrix"];
+    modelViewMatrixSlot = [_2DTextProgram uniformIndex:@"modelViewMatrix"];
+    
     //纹理贴图
     NSString* filePath = [[NSBundle mainBundle] pathForResource:@"F_tsh_008" ofType:@"png"];
     NSDictionary* options = [NSDictionary dictionaryWithObjectsAndKeys:@(1), GLKTextureLoaderOriginBottomLeft, nil];//GLKTextureLoaderOriginBottomLeft 纹理坐标系是相反的
     _textureInfo = [GLKTextureLoader textureWithContentsOfFile:filePath options:options error:nil];
+    
+    
+    float mRatio = outputFramebuffer.size.width/outputFramebuffer.size.height;
+    
+    NSLog(@"%f",mRatio);
     
     return self;
 }
@@ -101,6 +122,7 @@ NSString *const kMKGPUImage2DTextTestFragmentShaderString = SHADER_STRING
     outputFramebuffer = [[self.context framebufferCache] fetchFramebufferForSize:[self sizeOfFBO] textureOptions:self.outputTextureOptions missCVPixelBuffer:YES];
     [outputFramebuffer activateFramebuffer];
     
+    [self generateTransitionMatrix];
 //    glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     
@@ -125,7 +147,7 @@ NSString *const kMKGPUImage2DTextTestFragmentShaderString = SHADER_STRING
     if (!faceArray || faceArray.count == 0) return;
     
     glEnable(GL_BLEND);
-//    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+    glEnable(GL_DEPTH_TEST);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     MKFaceInfo *faceInfo = faceArray.firstObject;
@@ -133,35 +155,41 @@ NSString *const kMKGPUImage2DTextTestFragmentShaderString = SHADER_STRING
     
     [_2DTextProgram use];
     
-    GLfloat tempPoint[8];
+    GLfloat tempPoint[12];
     
     CGPoint pointer = [faceInfo.points[43] CGPointValue];
     CGPoint pointer1 = [faceInfo.points[1] CGPointValue];
     CGPoint pointer31 = [faceInfo.points[31] CGPointValue];
     
+    NSLog(@"pitch = %f yaw = %f roll = %f", faceInfo.pitch, faceInfo.yaw, faceInfo.roll);
+    
     CGFloat faceWidth = fabs(pointer31.x - pointer1.x);
     
     CGFloat faceHeight = faceWidth * (102.0/292.0);
     
-    tempPoint[0] = pointer.x - faceWidth/2;
-    tempPoint[1] = pointer.y - faceHeight/2;
+    tempPoint[0] = pointer.x - (faceWidth)/2;
+    tempPoint[1] = pointer.y - (faceHeight)/2;
+    tempPoint[2] = 0;
+
+    tempPoint[3] = pointer.x + (faceWidth)/2;
+    tempPoint[4] = pointer.y - (faceHeight)/2;
+    tempPoint[5] = 0;
+
+    tempPoint[6] = pointer.x - (faceWidth)/2;
+    tempPoint[7] = pointer.y + (faceHeight)/2;
+    tempPoint[8] = 0;
+
+    tempPoint[9] = pointer.x + (faceWidth)/2;
+    tempPoint[10] = pointer.y + (faceHeight)/2;
+    tempPoint[11] = 0;
     
-    tempPoint[2] = pointer.x + faceWidth/2;
-    tempPoint[3] = pointer.y - faceHeight/2;
-    
-    tempPoint[4] = pointer.x - faceWidth/2;
-    tempPoint[5] = pointer.y + faceHeight/2;
-    
-    tempPoint[6] = pointer.x + faceWidth/2;
-    tempPoint[7] = pointer.y + faceHeight/2;
-    
+//    GLKMathUnproject(<#GLKVector3 window#>, <#GLKMatrix4 model#>, <#GLKMatrix4 projection#>, <#int * _Nonnull viewport#>, <#bool * _Nullable success#>)
     static const GLfloat textureCoordinates[] = {
         0.0f, 0.0f,
         1.0f, 0.0f,
         0.0f, 1.0f,
         1.0f, 1.0f,
     };
-    
     
     GPUImagePicture *picture1 = [[GPUImagePicture alloc] initWithImage:[UIImage imageNamed:@"F_tsh_008"]];
     GPUImageFramebuffer *frameBuffer1 =  [picture1 framebufferForOutput];
@@ -177,15 +205,59 @@ NSString *const kMKGPUImage2DTextTestFragmentShaderString = SHADER_STRING
     glUniform1i(_inputTextureUniform, 3);
 //    [frameBuffer unlock];
     
-    glVertexAttribPointer(_positionAttribute, 2, GL_FLOAT, 0, 0, tempPoint);
+    glUniformMatrix4fv(projectionMatrixSlot, 1, GL_FALSE, projectionMatrix.m);
+    glUniformMatrix4fv(viewMatrixSlot, 1, GL_FALSE, viewMatrix.m);
+    glUniformMatrix4fv(modelViewMatrixSlot, 1, GL_FALSE, modelViewMatrix.m);
+    
+    [self get3DProject:tempPoint[0] withY:tempPoint[1]];
+    
+    glVertexAttribPointer(_positionAttribute, 3, GL_FLOAT, 0, 0, tempPoint);
     glEnableVertexAttribArray(_positionAttribute);
     glVertexAttribPointer(_inTextureAttribute, 2, GL_FLOAT, 0, 0, textureCoordinates);
     glEnableVertexAttribArray(_inTextureAttribute);
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glDisable(GL_BLEND);
+    
+    
+    
+//    glReadPixels(<#GLint x#>, <#GLint y#>, <#GLsizei width#>, <#GLsizei height#>, <#GLenum format#>, <#GLenum type#>, <#GLvoid *pixels#>)
 }
 
+- (void)get3DProject:(GLfloat) x withY:(GLfloat) y {
+    
+    GLfloat winx, winy, winz;
+    GLfloat posx, posy, posz;
+    GLint viewport[4];
+    
+    winx = x;
+    winy = y;
+    
+    glReadPixels(winx, winy, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winz);
+    
+
+    
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    
+    
+    GLKVector3 winVector = GLKVector3Make(winx, winy, winz);
+    GLKVector3 posVector = GLKMathUnproject(winVector, viewMatrix, projectionMatrix, viewport, nil);
+    
+    
+}
+
+
+- (void)generateTransitionMatrix {
+    
+    float mRatio = outputFramebuffer.size.width/outputFramebuffer.size.height;
+    
+    projectionMatrix = GLKMatrix4MakePerspective(GLKMathDegreesToRadians(45), mRatio, 3, 9);
+    
+    viewMatrix = GLKMatrix4MakeLookAt(0, 0, 3, 0, 0, 0, 0, 1, 0);
+    
+    modelViewMatrix = GLKMatrix4Identity;
+    
+}
 
 -(GLuint)createTexture2DImage:(UIImage *)image
 {

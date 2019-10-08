@@ -21,6 +21,7 @@
 @property (nonatomic, strong) UIButton *beautifyBt;
 
 @property (nonatomic, strong) NSArray<MKFilterModel *> *styleFilterModels;
+@property (nonatomic, strong) NSArray<MKFilterModel *> *stickerFilterModels;
 
 @end
 
@@ -92,7 +93,8 @@
 
 
 - (void)onEffectBtClick:(UIButton *)bt {
-    
+    _filterView.filterModels = _stickerFilterModels;
+    [_filterView toggle];
 }
 
 - (void)onFilterStyleBtClick:(UIButton *)bt {
@@ -110,6 +112,7 @@
 - (void)generateDataSource
 {
     _styleFilterModels = [MKFilterModel buildFilterModelsWithPath:kStyleFilterPath whitType:MKFilterTypeStyle];
+    _stickerFilterModels = [MKFilterModel buildFilterModelsWithPath:kStickerFilterPath whitType:MKFilterTypeEffects];
 }
 
 @end

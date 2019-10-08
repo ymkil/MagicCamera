@@ -1,0 +1,22 @@
+{
+  "name" : "白小猫",
+  "icon" : "baixiaomaohuxu_icon.png",
+  "nodes" : [
+    {
+      "type" : "2dAnim",
+      "dirname" : "F_CatMustache",
+      "facePos" : 46,
+      "startIndex" : 1,
+      "endIndex" : 31,
+      "offsetX" : 0,
+      "offsetY" : 0,
+      "ratio" : 1,
+      "number" : 72,
+      "width" : 200,
+      "height" : 100,
+      "duration" : 100,
+      "isloop" : 1,
+      "maxcount" : 5
+      },
+    ]
+}

@@ -23,6 +23,8 @@
     UIButton *_beautifyButton;
 }
 
+@property(nonatomic, strong) UIView *welcomeView;
+
 @property(nonatomic, strong) MKEffectFilter *effectFilter;
 
 @end
@@ -32,6 +34,28 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    _welcomeView = [[UIView alloc] initWithFrame:self.view.bounds];
+    _welcomeView.backgroundColor = [[UIColor alloc] initWithRed:59/255.0 green:55/255.0 blue: 54/255.0 alpha:0.5];
+    
+    UIButton *startBut = [[UIButton alloc] init];
+    [startBut setTitle:@"开启" forState:UIControlStateNormal];
+    [startBut addTarget:self action:@selector(startVideo) forControlEvents:UIControlEventTouchUpInside];
+    
+    [_welcomeView addSubview:startBut];
+    [startBut mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(_welcomeView.mas_centerX);
+        make.centerY.equalTo(_welcomeView.mas_centerY);
+        make.width.mas_equalTo(80);
+        make.height.mas_equalTo(40);
+    }];
+    
+    [self.view addSubview:_welcomeView];
+}
+
+
+-(void)startVideo {
+    [_welcomeView removeFromSuperview];
     
     _videoCamera = [[GPUImageVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionFront];
     _videoCamera.outputImageOrientation = UIInterfaceOrientationPortrait;
@@ -55,8 +79,8 @@
     MKCameraView *cameraView = [[MKCameraView alloc] initWithFrame:self.view.bounds];
     cameraView.delegate = self;
     [self.view addSubview:cameraView];
-    
 }
+
 
 #pragma mark-
 #pragma mark ViewDelegate
@@ -69,6 +93,5 @@
 {
     [_effectFilter setIntensity:intensity];
 }
-
 
 @end

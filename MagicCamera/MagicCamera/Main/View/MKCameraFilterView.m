@@ -51,6 +51,7 @@
     _titleLabel.textAlignment = NSTextAlignmentCenter;
     _titleLabel.backgroundColor = [UIColor colorWithRed:8/255.0 green:157/255.0 blue:184/255.0 alpha:0.6f];
     [self.contentView addSubview:_titleLabel];
+    self.contentView.backgroundColor = [UIColor colorWithRed:104/255.0 green:98/255.0 blue:98/255.0 alpha:0.5];
 }
 
 - (void)setModel:(MKFilterModel *)model

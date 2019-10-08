@@ -16,6 +16,7 @@
 #import "MKGPUImageKeyPointFilter.h"
 #import "MKGPUImageLookupFilter.h"
 #import "MKGPUImage2DTextTestFilter.h"
+#import "MKGPUImageDynamicSticker2DFilter.h"
 
 
 
@@ -40,6 +41,7 @@
 @property (nonatomic, strong) MKGPUImageKeyPointFilter *keyPointfilter;
 @property (nonatomic, strong) MKGPUImageLookupFilter *lookupFilter;
 @property (nonatomic, strong) MKGPUImage2DTextTestFilter *testFilter;
+@property (nonatomic, strong) MKGPUImageDynamicSticker2DFilter *dynamicSticker;
 
 @property (nonatomic, assign) BOOL initCommonProcess;
 @property (nonatomic, assign) BOOL initProcess;
@@ -77,6 +79,7 @@
         _keyPointfilter = [[MKGPUImageKeyPointFilter alloc] initWithContext:_glContext];
         _lookupFilter = [[MKGPUImageLookupFilter alloc] initWithContext:_glContext];
         _testFilter = [[MKGPUImage2DTextTestFilter alloc] initWithContext:_glContext];
+        _dynamicSticker = [[MKGPUImageDynamicSticker2DFilter alloc] initWithContext:_glContext];
     }
     return self;
 }
@@ -105,7 +108,8 @@
     
         [filterChainArray addObject:self.keyPointfilter];
         [filterChainArray addObject:self.lookupFilter];
-        [filterChainArray addObject:self.testFilter];
+//        [filterChainArray addObject:self.testFilter];
+        [filterChainArray addObject:self.dynamicSticker];
         
         if (![MGFaceLicenseHandle getLicense]) {
             [self.commonInputFilter addTarget:self.trackOutput];
@@ -214,6 +218,8 @@
     
     if (filterModel.type == MKFilterTypeStyle) {
         _lookupFilter.lookup = [UIImage imageWithContentsOfFile:filterModel.image];
+    } else if(filterModel.type == MKFilterTypeEffects) {
+        _dynamicSticker.filterModel = filterModel;
     }
 
 }
