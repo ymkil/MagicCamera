@@ -20,7 +20,6 @@
 		E80C20EE231F62BA00331BBE /* MGFaceLicenseHandle.m in Sources */ = {isa = PBXBuildFile; fileRef = E80C20ED231F62BA00331BBE /* MGFaceLicenseHandle.m */; };
 		E80C21332320AFF400331BBE /* MKGLProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = E80C21112320AFF400331BBE /* MKGLProgram.m */; };
 		E80C21342320AFF400331BBE /* MKGPUImageKeyPointFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E80C21132320AFF400331BBE /* MKGPUImageKeyPointFilter.m */; };
-		E80C21352320AFF400331BBE /* MKGPUImage2DTextTestFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E80C21142320AFF400331BBE /* MKGPUImage2DTextTestFilter.m */; };
 		E80C21362320AFF400331BBE /* MKGPUImageFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E80C21152320AFF400331BBE /* MKGPUImageFilter.m */; };
 		E80C21372320AFF400331BBE /* MKGPUImageFramebufferCache.m in Sources */ = {isa = PBXBuildFile; fileRef = E80C211D2320AFF400331BBE /* MKGPUImageFramebufferCache.m */; };
 		E80C21382320AFF400331BBE /* MKGPUImageTextureInput.m in Sources */ = {isa = PBXBuildFile; fileRef = E80C21202320AFF400331BBE /* MKGPUImageTextureInput.m */; };
@@ -80,9 +79,7 @@
 		E80C20ED231F62BA00331BBE /* MGFaceLicenseHandle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGFaceLicenseHandle.m; sourceTree = "<group>"; };
 		E80C21112320AFF400331BBE /* MKGLProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGLProgram.m; sourceTree = "<group>"; };
 		E80C21132320AFF400331BBE /* MKGPUImageKeyPointFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGPUImageKeyPointFilter.m; sourceTree = "<group>"; };
-		E80C21142320AFF400331BBE /* MKGPUImage2DTextTestFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGPUImage2DTextTestFilter.m; sourceTree = "<group>"; };
 		E80C21152320AFF400331BBE /* MKGPUImageFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MKGPUImageFilter.m; sourceTree = "<group>"; };
-		E80C21162320AFF400331BBE /* MKGPUImage2DTextTestFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKGPUImage2DTextTestFilter.h; sourceTree = "<group>"; };
 		E80C21172320AFF400331BBE /* MKGPUImageKeyPointFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKGPUImageKeyPointFilter.h; sourceTree = "<group>"; };
 		E80C21182320AFF400331BBE /* MKGPUImageFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKGPUImageFilter.h; sourceTree = "<group>"; };
 		E80C21192320AFF400331BBE /* MKGPUImageFramebufferCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MKGPUImageFramebufferCache.h; sourceTree = "<group>"; };
@@ -287,8 +284,6 @@
 				E80C21152320AFF400331BBE /* MKGPUImageFilter.m */,
 				E80C21172320AFF400331BBE /* MKGPUImageKeyPointFilter.h */,
 				E80C21132320AFF400331BBE /* MKGPUImageKeyPointFilter.m */,
-				E80C21162320AFF400331BBE /* MKGPUImage2DTextTestFilter.h */,
-				E80C21142320AFF400331BBE /* MKGPUImage2DTextTestFilter.m */,
 				E82F42C123273D6100A81E4C /* MKGPUImageLookupFilter.h */,
 				E82F42C223273D6100A81E4C /* MKGPUImageLookupFilter.m */,
 			);
@@ -575,7 +570,6 @@
 				E80C20C4231F5D6700331BBE /* AppDelegate.m in Sources */,
 				E80C21332320AFF400331BBE /* MKGLProgram.m in Sources */,
 				E80C21342320AFF400331BBE /* MKGPUImageKeyPointFilter.m in Sources */,
-				E80C21352320AFF400331BBE /* MKGPUImage2DTextTestFilter.m in Sources */,
 				E80C21512320B05800331BBE /* MKFilterModel.m in Sources */,
 				E80C213A2320AFF400331BBE /* MKGPUImageTrackOutput.m in Sources */,
 				E80C213E2320AFF400331BBE /* MKEffectHandler.m in Sources */,
