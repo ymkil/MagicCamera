@@ -39,7 +39,6 @@
                 model = [self buildStickerFilterModelsWithPath:currentFolder];
             }
             
-            
             // add
             if (model) {
                 [filters addObject:model];
@@ -100,7 +99,8 @@
     for (NSDictionary *nodeDict in dict[@"nodes"]) {
         MKNodeModel *node = [[MKNodeModel alloc] init];
         node.type = nodeDict[@"type"];
-        node.dirname = [currentFolder stringByAppendingPathComponent:nodeDict[@"dirname"]];
+        node.dirname = nodeDict[@"dirname"];
+        node.filePath = [currentFolder stringByAppendingPathComponent:nodeDict[@"dirname"]];
         node.facePos = [nodeDict[@"facePos"] integerValue];
         node.startIndex = [nodeDict[@"startIndex"] integerValue];
         node.endIndex = [nodeDict[@"endIndex"] integerValue];

@@ -22,6 +22,8 @@ typedef NS_ENUM(NSInteger, MKFilterType)
 @property (nonatomic, strong) NSString *type;
 /// 存放素材的文件夹名称 (素材目录下图片格式 dirname_000.png)
 @property (nonatomic, strong) NSString *dirname;
+/// 图片素材文件路径
+@property (nonatomic, strong) NSString *filePath;
 /// 贴纸中心点
 @property (nonatomic, assign) NSInteger facePos;
 /// 人脸起始位置

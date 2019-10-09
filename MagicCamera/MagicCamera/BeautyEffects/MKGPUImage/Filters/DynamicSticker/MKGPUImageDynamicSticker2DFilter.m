@@ -14,6 +14,8 @@
 #import <GPUImage/GPUImage.h>
 #import <GLKit/GLKit.h>
 
+#import "MKTool.h"
+
 NSString *const kMKGPUImageDynamicSticker2DVertexShaderString = SHADER_STRING
 (
  attribute vec3 vPosition;
@@ -63,10 +65,9 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     
     // 是否第一次生成 投影矩阵
     BOOL _isProjectionMatrix;
-    int _msecNum;
 }
 
-@property (nonatomic, strong) dispatch_source_t timer;
+@property(nonatomic, strong) NSMutableDictionary *nodeFrameTime;
 
 @end
 
@@ -76,8 +77,6 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     if (!(self = [super initWithContext:context vertexShaderFromString:vertexShaderString fragmentShaderFromString:fragmentShaderString])) {
         return nil;
     }
-    
-    
     
     _program = [self.context programForVertexShaderString:kMKGPUImageDynamicSticker2DVertexShaderString fragmentShaderString:kMKGPUImageDynamicSticker2DFragmentShaderString];
     
@@ -101,40 +100,15 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     _viewMatrixSlot = [_program uniformIndex:@"viewMatrix"];
     _modelViewMatrixSlot = [_program uniformIndex:@"modelViewMatrix"];
     
-    //纹理贴图
-//    NSString* filePath = [[NSBundle mainBundle] pathForResource:@"F_tsh_008" ofType:@"png"];
-//    NSDictionary* options = [NSDictionary dictionaryWithObjectsAndKeys:@(1), GLKTextureLoaderOriginBottomLeft, nil];//GLKTextureLoaderOriginBottomLeft 纹理坐标系是相反的
-//    _textureInfo = [GLKTextureLoader textureWithContentsOfFile:filePath options:options error:nil];
+    
+    _nodeFrameTime = [[NSMutableDictionary alloc] initWithCapacity:6];
     
     _isProjectionMatrix = YES;
     return self;
 }
 
-- (void)dealloc {
-    dispatch_cancel(_timer);
-    _timer = nil;
-}
-
 #pragma mark -
 #pragma mark Timer
-- (void)createTimer
-{
-    dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-    _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-    
-    // 一毫秒一次
-    dispatch_source_set_timer(_timer, DISPATCH_TIME_NOW, NSEC_PER_MSEC, 0);
-    
-    dispatch_source_set_event_handler(self.timer, ^{
-        _msecNum++;
-        if (_msecNum == WINT_MAX) {
-            _msecNum = 0;
-        }
-    });
-
-    // 启动定时器
-    dispatch_resume(_timer);
-}
 
 - (void)generateTransitionMatrix {
     
@@ -152,7 +126,7 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
 -(void)setFilterModel:(MKFilterModel *)filterModel
 {
     _filterModel = filterModel;
-    _msecNum = 0;
+    [_nodeFrameTime removeAllObjects];
 }
 
 #pragma mark -
@@ -196,6 +170,10 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
 }
 
 - (void)drawFaceNode:(MKNodeModel *)node withfaceInfo:(MKFaceInfo *)faceInfo {
+    
+    GLuint textureId = [self getNodeTexture:node];
+    if (textureId <= 0) return;
+    
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
@@ -282,12 +260,9 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     
     _modelViewMatrix = GLKMatrix4Translate(_modelViewMatrix, -ndcCenterX, -ndcCenterY, 0);
     
-    GPUImagePicture *picture1 = [[GPUImagePicture alloc] initWithImage:[UIImage imageNamed:@"F_tsh_008"]];
-    GPUImageFramebuffer *frameBuffer1 =  [picture1 framebufferForOutput];
-    
     
     glActiveTexture(GL_TEXTURE3);
-    glBindTexture(GL_TEXTURE_2D, [frameBuffer1 texture]);
+    glBindTexture(GL_TEXTURE_2D, textureId);
     
     glUniform1i(_inputTextureUniform, 3);
     
@@ -303,98 +278,44 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
     glDisable(GL_BLEND);
-    
+
 }
 
+-(GLuint )getNodeTexture:(MKNodeModel *)node {
+    
+    uint64_t nodeMillis = 0;
+    
+    if (_nodeFrameTime[node.dirname] == nil) {
+        nodeMillis = [MKTool getCurrentTimeMillis];
+        _nodeFrameTime[node.dirname] = [[NSNumber alloc] initWithUnsignedLongLong:nodeMillis];
+    } else {
+        nodeMillis = [_nodeFrameTime[node.dirname] unsignedLongLongValue];
+    }
+    
+    int frameIndex = (int)(([MKTool getCurrentTimeMillis] - nodeMillis) / node.duration);
+    
+    NSLog(@"frameIndex = %d",frameIndex);
+    
+    if (frameIndex >= node.number) {
+        if (node.isloop) {
+            _nodeFrameTime[node.dirname] = [[NSNumber alloc] initWithUnsignedLongLong:[MKTool getCurrentTimeMillis]];
+            frameIndex = 0;
+        } else {
+            return 0;
+        }
+    }
+    
+    NSString *imageName = [NSString stringWithFormat:@"%@_%03d.png",node.dirname,frameIndex];
+    NSString *path = [node.filePath stringByAppendingPathComponent:imageName];
+    UIImage *iamge = [UIImage imageWithContentsOfFile:path];
+    
+    GPUImagePicture *picture1 = [[GPUImagePicture alloc] initWithImage:iamge];
+    GPUImageFramebuffer *frameBuffer1 =  [picture1 framebufferForOutput];
 
-//- (void)drawFaceNode:(MKNodeModel *)node withfaceInfo:(MKFaceInfo *)faceInfo {
-//    glEnable(GL_BLEND);
-//    glEnable(GL_DEPTH_TEST);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-//    [outputFramebuffer activateFramebuffer];
-//    [_program use];
-//
-//    GLfloat tempPoint[8];
-//    CGPoint centerPoint = [faceInfo.points[node.facePos] CGPointValue];
-//    CGPoint startPoint = [faceInfo.points[node.startIndex] CGPointValue];
-//    CGPoint endPoint = [faceInfo.points[node.endIndex] CGPointValue];
-//
-//    NSLog(@"pitch = %f yaw = %f roll = %f", faceInfo.pitch, faceInfo.yaw, faceInfo.roll);
-//
-//    CGFloat faceWidth = fabs(endPoint.x - startPoint.x) * 2;
-//
-//    CGFloat faceHeight = faceWidth * (node.height/node.width) * 2;
-//
-//    tempPoint[0] = centerPoint.x - (faceWidth)/2;
-//    tempPoint[1] = centerPoint.y - (faceHeight)/2;
-//
-//    tempPoint[2] = centerPoint.x + (faceWidth)/2;
-//    tempPoint[3] = centerPoint.y - (faceHeight)/2;
-//
-//    tempPoint[4] = centerPoint.x - (faceWidth)/2;
-//    tempPoint[5] = centerPoint.y + (faceHeight)/2;
-//
-//    tempPoint[6] = centerPoint.x + (faceWidth)/2;
-//    tempPoint[7] = centerPoint.y + (faceHeight)/2;
-//
-//    static const GLfloat textureCoordinates[] = {
-//        0.0f, 0.0f,
-//        1.0f, 0.0f,
-//        0.0f, 1.0f,
-//        1.0f, 1.0f,
-//    };
-//
-//    // 欧拉角
-//    float pitchAngle = -(faceInfo.pitch * 180/M_PI);
-//    float yawAngle = (faceInfo.yaw * 180/M_PI);
-//    float rollAngle = (faceInfo.roll * 180/M_PI);
-//
-//    if (fabsf(yawAngle) > 10) {
-//        yawAngle = (yawAngle/fabsf(yawAngle)) * 10;
-//    }
-//
-//    if (fabsf(pitchAngle) > 30) {
-//        pitchAngle = (pitchAngle/fabsf(pitchAngle)) * 30;
-//    }
-//
-//    NSLog(@"pitchAngle = %f yawAngle = %f rollAngle = %f", pitchAngle, yawAngle, rollAngle);
-//
-//    _modelViewMatrix = GLKMatrix4Identity;
-//    _modelViewMatrix = GLKMatrix4Translate(_modelViewMatrix, centerPoint.x, centerPoint.y, 0);
-//
-//    //    _modelViewMatrix = GLKMatrix4RotateZ(_modelViewMatrix, rollAngle);
-//    //    _modelViewMatrix = GLKMatrix4RotateY(_modelViewMatrix, yawAngle);
-//    //    _modelViewMatrix = GLKMatrix4RotateX(_modelViewMatrix, pitchAngle);
-//    //    _modelViewMatrix = GLKMatrix4Rotate(_modelViewMatrix, rollAngle, 0, 0, 1);
-//    _modelViewMatrix = GLKMatrix4Rotate(_modelViewMatrix, 10, 0, 1, 0);
-//    //    _modelViewMatrix = GLKMatrix4Rotate(_modelViewMatrix, pitchAngle, 1, 0, 0);
-//
-//    _modelViewMatrix = GLKMatrix4Translate(_modelViewMatrix, -centerPoint.x, -centerPoint.y, 0);
-//
-//    GPUImagePicture *picture1 = [[GPUImagePicture alloc] initWithImage:[UIImage imageNamed:@"F_tsh_008"]];
-//    GPUImageFramebuffer *frameBuffer1 =  [picture1 framebufferForOutput];
-//
-//
-//    glActiveTexture(GL_TEXTURE3);
-//    glBindTexture(GL_TEXTURE_2D, [frameBuffer1 texture]);
-//
-//    glUniform1i(_inputTextureUniform, 3);
-//
-//    glUniformMatrix4fv(_projectionMatrixSlot, 1, GL_FALSE, _projectionMatrix.m);
-//    glUniformMatrix4fv(_viewMatrixSlot, 1, GL_FALSE, _viewMatrix.m);
-//    glUniformMatrix4fv(_modelViewMatrixSlot, 1, GL_FALSE, _modelViewMatrix.m);
-//
-//    glVertexAttribPointer(_positionAttribute, 2, GL_FLOAT, 0, 0, tempPoint);
-//    glEnableVertexAttribArray(_positionAttribute);
-//    glVertexAttribPointer(_inTextureAttribute, 2, GL_FLOAT, 0, 0, textureCoordinates);
-//    glEnableVertexAttribArray(_inTextureAttribute);
-//
-//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-//
-//    glDisable(GL_BLEND);
-//    glDisable(GL_DEPTH_TEST);
-//}
+    NSLog(@"path = %@ id = %u",path,[frameBuffer1 texture]);
+    
+    return [frameBuffer1 texture];
+}
 
 float getDistance(float x1, float y1, float x2, float y2) {
     return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));

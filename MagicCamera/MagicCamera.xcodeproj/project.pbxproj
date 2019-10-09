@@ -46,6 +46,7 @@
 		E82F42C523273DE500A81E4C /* lookup.png in Resources */ = {isa = PBXBuildFile; fileRef = E82F42C423273DE400A81E4C /* lookup.png */; };
 		E82F42CE2327C90F00A81E4C /* Stickers in Resources */ = {isa = PBXBuildFile; fileRef = E82F42CD2327C90F00A81E4C /* Stickers */; };
 		E83186AB2340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E83186AA2340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.m */; };
+		E8C39462234D7C90003FDB88 /* MKTool.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C39461234D7C90003FDB88 /* MKTool.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -128,6 +129,8 @@
 		E82F42CD2327C90F00A81E4C /* Stickers */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Stickers; sourceTree = "<group>"; };
 		E83186A92340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKGPUImageDynamicSticker2DFilter.h; sourceTree = "<group>"; };
 		E83186AA2340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKGPUImageDynamicSticker2DFilter.m; sourceTree = "<group>"; };
+		E8C39460234D7C90003FDB88 /* MKTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKTool.h; sourceTree = "<group>"; };
+		E8C39461234D7C90003FDB88 /* MKTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKTool.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -279,14 +282,13 @@
 		E80C21122320AFF400331BBE /* Filters */ = {
 			isa = PBXGroup;
 			children = (
+				E8C39463234D7ED3003FDB88 /* DynamicSticker */,
 				E80C21182320AFF400331BBE /* MKGPUImageFilter.h */,
 				E80C21152320AFF400331BBE /* MKGPUImageFilter.m */,
 				E80C21172320AFF400331BBE /* MKGPUImageKeyPointFilter.h */,
 				E80C21132320AFF400331BBE /* MKGPUImageKeyPointFilter.m */,
 				E80C21162320AFF400331BBE /* MKGPUImage2DTextTestFilter.h */,
 				E80C21142320AFF400331BBE /* MKGPUImage2DTextTestFilter.m */,
-				E83186A92340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.h */,
-				E83186AA2340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.m */,
 				E82F42C123273D6100A81E4C /* MKGPUImageLookupFilter.h */,
 				E82F42C223273D6100A81E4C /* MKGPUImageLookupFilter.m */,
 			);
@@ -330,6 +332,8 @@
 			isa = PBXGroup;
 			children = (
 				E80C212F2320AFF400331BBE /* MKHeader.h */,
+				E8C39460234D7C90003FDB88 /* MKTool.h */,
+				E8C39461234D7C90003FDB88 /* MKTool.m */,
 			);
 			path = MKHelp;
 			sourceTree = "<group>";
@@ -411,6 +415,15 @@
 				E80C229A2320B34300331BBE /* beautify.png */,
 			);
 			path = icon;
+			sourceTree = "<group>";
+		};
+		E8C39463234D7ED3003FDB88 /* DynamicSticker */ = {
+			isa = PBXGroup;
+			children = (
+				E83186A92340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.h */,
+				E83186AA2340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.m */,
+			);
+			path = DynamicSticker;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -541,6 +554,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E80C20C7231F5D6700331BBE /* ViewController.mm in Sources */,
+				E8C39462234D7C90003FDB88 /* MKTool.m in Sources */,
 				E80C213C2320AFF400331BBE /* MKGPUImageTextureOutput.m in Sources */,
 				E82F42C323273D6100A81E4C /* MKGPUImageLookupFilter.m in Sources */,
 				E80C213D2320AFF400331BBE /* MKGPUImageContext.m in Sources */,
