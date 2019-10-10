@@ -17,10 +17,4 @@
 #define MG_LICENSE_KEY      @"UJ8Sq132vsqyy9ATQiSoG9TY6R311f_4" // api_key          测试 KEY
 #define MG_LICENSE_SECRET    @"DTKTxasC05lqZ6r38Be6iRYI7h2VLDjg" // api_secret
 
-//#define MG_LICENSE_KEY      @"M_ZkF1l8rw7LEwnv162Wb42R3uGI8Gwu" // api_key          测试 KEY
-//#define MG_LICENSE_SECRET    @"oqZXNKrLnmQd6YzOw6ak0Jv_f0S-tCQM" // api_secret
-
-//#define MG_LICENSE_KEY      @"X2F5S61jr-KG-cmxCnKOTctKcGN0lHFx" // api_key          测试 KEY
-//#define MG_LICENSE_SECRET    @"K4sB3sntF6vgIrI02cI9WkWlatTgO57E" // api_secret
-
 #endif /* MGNetAccount_example_h */
