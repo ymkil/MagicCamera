@@ -16,6 +16,9 @@
 
 #import "MKTool.h"
 
+/// 贴纸跟近平面的坐标比例
+static CGFloat ProjectionScale = 2;
+
 NSString *const kMKGPUImageDynamicSticker2DVertexShaderString = SHADER_STRING
 (
  attribute vec3 vPosition;
@@ -23,13 +26,11 @@ NSString *const kMKGPUImageDynamicSticker2DVertexShaderString = SHADER_STRING
  
  varying vec2 textureCoordinate;
  
- uniform mat4 projectionMatrix;
- uniform mat4 viewMatrix;
- uniform mat4 modelViewMatrix;
+ uniform mat4 u_mvpMatrix;
  
  void main()
  {
-     gl_Position = projectionMatrix * viewMatrix * modelViewMatrix * vec4(vPosition, 1.0);
+     gl_Position = u_mvpMatrix * vec4(vPosition, 1.0);
      textureCoordinate = in_texture;
  }
  );
@@ -59,14 +60,13 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     GLKMatrix4 _viewMatrix;
     GLKMatrix4 _modelViewMatrix;
     
-    GLuint _projectionMatrixSlot;
-    GLuint _viewMatrixSlot;
-    GLuint _modelViewMatrixSlot;
+    GLuint _mvpMatrixSlot;
     
     // 是否第一次生成 投影矩阵
     BOOL _isProjectionMatrix;
 }
 
+/// 记录每个node的起始毫秒，用于计算对应帧数
 @property(nonatomic, strong) NSMutableDictionary *nodeFrameTime;
 
 @end
@@ -96,10 +96,7 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     _inTextureAttribute = [_program attributeIndex:@"in_texture"];
     _inputTextureUniform = [_program uniformIndex:@"inputImageTexture"];
     
-    _projectionMatrixSlot = [_program uniformIndex:@"projectionMatrix"];
-    _viewMatrixSlot = [_program uniformIndex:@"viewMatrix"];
-    _modelViewMatrixSlot = [_program uniformIndex:@"modelViewMatrix"];
-    
+    _mvpMatrixSlot = [_program uniformIndex:@"u_mvpMatrix"];
     
     _nodeFrameTime = [[NSMutableDictionary alloc] initWithCapacity:6];
     
@@ -108,13 +105,12 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
 }
 
 #pragma mark -
-#pragma mark Timer
+#pragma mark matrix
 
 - (void)generateTransitionMatrix {
     
     float mRatio = outputFramebuffer.size.width/outputFramebuffer.size.height;
     
-    // 近平面 设置 为 3
     _projectionMatrix = GLKMatrix4MakeFrustum(-mRatio, mRatio, -1, 1, 3, 9);
     
     _viewMatrix = GLKMatrix4MakeLookAt(0, 0, 6, 0, 0, 0, 0, 1, 0);
@@ -157,6 +153,7 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
+    // 逐一绘制
     if(MKLandmarkManager.shareManager.faceData && _filterModel && _filterModel.nodes) {
         for (int i = 0; i < MKLandmarkManager.shareManager.faceData.count; i ++) {
             for (int j = 0; j < _filterModel.nodes.count; j ++) {
@@ -182,8 +179,6 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     
     GLfloat tempPoint[8];
     
-    CGFloat ProjectionScale = 2;
-    
     CGFloat mImageWidth = MKLandmarkManager.shareManager.detectionWidth;
     CGFloat mImageHeight = MKLandmarkManager.shareManager.detectionHeight;
     
@@ -200,27 +195,36 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     centerX = centerX / mImageHeight * ProjectionScale;
     centerY = centerY / mImageHeight * ProjectionScale;
     
-    // 1.3、求出真正的中心点顶点坐标，这里由于frustumM设置了长宽比，因此ndc坐标计算时需要变成mRatio:1，这里需要转换一下
+    // 求出真正的中心点顶点坐标，这里由于frustumM设置了长宽比，因此ndc坐标计算时需要变成mRatio:1，这里需要转换一下
     float ndcCenterX = (centerX - outputFramebuffer.size.width/outputFramebuffer.size.height) * ProjectionScale;
     float ndcCenterY = (centerY - 1.0f) * ProjectionScale;
     
-    // 1.4、贴纸的宽高在ndc坐标系中的长度
+    // 贴纸的宽高在ndc坐标系中的长度
     float ndcStickerWidth = stickerWidth / mImageHeight * ProjectionScale;
     float ndcStickerHeight = ndcStickerWidth * (float) node.height / (float) node.width;
     
+    // ndc偏移坐标
+    float offsetX = (stickerWidth * node.offsetX) / mImageHeight * ProjectionScale;
+    float offsetY = (stickerHeight * node.offsetY) / mImageHeight * ProjectionScale;
+
+    // 根据偏移坐标算出锚点的ndc 坐标
+    float anchorX = ndcCenterX + offsetX;
+    float anchorY = ndcCenterY + offsetY;
     
-    tempPoint[0] = ndcCenterX - ndcStickerWidth;
-    tempPoint[1] = ndcCenterY - ndcStickerHeight;
+    // 贴纸实际的顶点坐标
+    tempPoint[0] = anchorX - ndcStickerWidth;
+    tempPoint[1] = anchorY - ndcStickerHeight;
     
-    tempPoint[2] = ndcCenterX + ndcStickerWidth;
-    tempPoint[3] = ndcCenterY - ndcStickerHeight;
+    tempPoint[2] = anchorX + ndcStickerWidth;
+    tempPoint[3] = anchorY - ndcStickerHeight;
 
-    tempPoint[4] = ndcCenterX - ndcStickerWidth;
-    tempPoint[5] = ndcCenterY + ndcStickerHeight;
+    tempPoint[4] = anchorX - ndcStickerWidth;
+    tempPoint[5] = anchorY + ndcStickerHeight;
 
-    tempPoint[6] = ndcCenterX + ndcStickerWidth;
-    tempPoint[7] = ndcCenterY + ndcStickerHeight;
+    tempPoint[6] = anchorX + ndcStickerWidth;
+    tempPoint[7] = anchorY + ndcStickerHeight;
 
+    // 纹理坐标
     static const GLfloat textureCoordinates[] = {
         0.0f, 0.0f,
         1.0f, 0.0f,
@@ -229,46 +233,31 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     };
     
     // 欧拉角
-//    float pitchAngle = -(float)(faceInfo.pitch * 180/M_PI);
-//    float yawAngle = (float)(faceInfo.yaw * 180/M_PI);
-//    float rollAngle = (float)(faceInfo.roll * 180/M_PI);
-
     float pitchAngle = faceInfo.pitch;
     float yawAngle = faceInfo.yaw;
     float rollAngle = -faceInfo.roll;
     
-    if (fabsf(yawAngle) > 10) {
-        yawAngle = (yawAngle/fabsf(yawAngle)) * 10;
-    }
-    
-    
-    if (fabsf(pitchAngle) > 30) {
-        pitchAngle = (pitchAngle/fabsf(pitchAngle)) * 30;
-    }
-    
-    NSLog(@"pitchAngle = %f yawAngle = %f rollAngle = %f", pitchAngle, yawAngle, rollAngle);
-    
     _modelViewMatrix = GLKMatrix4Identity;
+    
+    // 移到贴纸中心
     _modelViewMatrix = GLKMatrix4Translate(_modelViewMatrix, ndcCenterX, ndcCenterY, 0);
     
     _modelViewMatrix = GLKMatrix4RotateZ(_modelViewMatrix, rollAngle);
     _modelViewMatrix = GLKMatrix4RotateY(_modelViewMatrix, yawAngle);
     _modelViewMatrix = GLKMatrix4RotateX(_modelViewMatrix, pitchAngle);
-//    _modelViewMatrix = GLKMatrix4Rotate(_modelViewMatrix, rollAngle, 0, 0, 1);
-//    _modelViewMatrix = GLKMatrix4Rotate(_modelViewMatrix, 1.5, 0, 1, 0);
-//    _modelViewMatrix = GLKMatrix4Rotate(_modelViewMatrix, pitchAngle, 1, 0, 0);
-    
+
+    // 平移回到原来构建的视椎体的位置
     _modelViewMatrix = GLKMatrix4Translate(_modelViewMatrix, -ndcCenterX, -ndcCenterY, 0);
     
+    GLKMatrix4 mvpMatrix = GLKMatrix4Multiply(_projectionMatrix, _viewMatrix);
+    mvpMatrix = GLKMatrix4Multiply(mvpMatrix, _modelViewMatrix);
     
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, textureId);
     
     glUniform1i(_inputTextureUniform, 3);
     
-    glUniformMatrix4fv(_projectionMatrixSlot, 1, GL_FALSE, _projectionMatrix.m);
-    glUniformMatrix4fv(_viewMatrixSlot, 1, GL_FALSE, _viewMatrix.m);
-    glUniformMatrix4fv(_modelViewMatrixSlot, 1, GL_FALSE, _modelViewMatrix.m);
+    glUniformMatrix4fv(_mvpMatrixSlot, 1, GL_FALSE, mvpMatrix.m);
     
     glVertexAttribPointer(_positionAttribute, 2, GL_FLOAT, 0, 0, tempPoint);
     glEnableVertexAttribArray(_positionAttribute);
@@ -294,8 +283,6 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     
     int frameIndex = (int)(([MKTool getCurrentTimeMillis] - nodeMillis) / node.duration);
     
-    NSLog(@"frameIndex = %d",frameIndex);
-    
     if (frameIndex >= node.number) {
         if (node.isloop) {
             _nodeFrameTime[node.dirname] = [[NSNumber alloc] initWithUnsignedLongLong:[MKTool getCurrentTimeMillis]];
@@ -307,12 +294,10 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     
     NSString *imageName = [NSString stringWithFormat:@"%@_%03d.png",node.dirname,frameIndex];
     NSString *path = [node.filePath stringByAppendingPathComponent:imageName];
-    UIImage *iamge = [UIImage imageWithContentsOfFile:path];
+    UIImage *image = [UIImage imageWithContentsOfFile:path];
     
-    GPUImagePicture *picture1 = [[GPUImagePicture alloc] initWithImage:iamge];
+    GPUImagePicture *picture1 = [[GPUImagePicture alloc] initWithImage:image];
     GPUImageFramebuffer *frameBuffer1 =  [picture1 framebufferForOutput];
-
-    NSLog(@"path = %@ id = %u",path,[frameBuffer1 texture]);
     
     return [frameBuffer1 texture];
 }

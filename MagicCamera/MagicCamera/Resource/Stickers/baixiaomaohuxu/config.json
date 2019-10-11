@@ -18,5 +18,21 @@
       "isloop" : 1,
       "maxcount" : 5
       },
+    {
+        "type" : "2dAnim",
+        "dirname" : "F_MouceHeart",
+        "facePos" : 45,
+        "startIndex" : 52,
+        "endIndex" : 43,
+        "offsetX" : -1.2,
+        "offsetY" : -0.3,
+        "ratio" : 1,
+        "number" : 72,
+        "width" : 200,
+        "height" : 150,
+        "duration" : 100,
+        "isloop" : 1,
+        "maxcount" : 5
+    },
     ]
 }
