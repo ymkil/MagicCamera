@@ -47,8 +47,9 @@ void runMSynchronouslyOnContextQueue(MKGPUImageContext *context, void (^block)(v
 @protocol MKGPUImageInput <NSObject>
 
 - (void)setInputSize:(CGSize)newSize;
-- (void)setInputFramebuffer:(MKGPUImageFramebuffer *)newInputFramebuffer;
-- (void)newFrameReady;
+- (void)setInputFramebuffer:(MKGPUImageFramebuffer *)newInputFramebuffer atIndex:(NSInteger)textureIndex;
+
+- (void)newFrameReadyIndex:(NSInteger)textureIndex;
 
 @end
 

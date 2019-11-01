@@ -59,7 +59,4 @@ typedef NS_ENUM(NSUInteger, MKGPUImageRotationMode) {
     kMKGPUImageRotate180
 };
 
-
-
-
 #endif /* MKGPUImageConstants_h */

@@ -12,20 +12,25 @@
 
 - (id)initWithContext:(MKGPUImageContext *)context withImage:(UIImage *)newImageSource
 {
-    if (!(self = [self initWithContext:context withImage:[newImageSource CGImage] smoothlyScaleOutput:NO])) {
-        return nil;
-    }
-
-    return self;
+//    if (!(self = [self initWithContext:context withImage:[newImageSource CGImage] smoothlyScaleOutput:NO])) {
+//        return nil;
+//    }
+    return [self initWithContext:context withImage:[newImageSource CGImage] smoothlyScaleOutput:NO];
 }
 
 - (id)initWithContext:(MKGPUImageContext *)context withImage:(CGImageRef )newImageSource smoothlyScaleOutput:(BOOL)smoothlyScaleOutput
 {
+    return [self initWithContext:context withImage:newImageSource smoothlyScaleOutput:smoothlyScaleOutput removePremultiplication:NO];
+}
 
+- (id)initWithContext:(MKGPUImageContext *)context withImage:(CGImageRef )newImageSource smoothlyScaleOutput:(BOOL)smoothlyScaleOutput removePremultiplication:(BOOL)removePremultiplication;
+{
+    
     if (!(self = [super initWithContext:context]))
     {
         return nil;
     }
+    self.context = context;
     
     hasProcessedImage = NO;
     self.shouldSmoothlyScaleOutput = smoothlyScaleOutput;
@@ -68,6 +73,9 @@
     GLubyte *imageData = NULL;
     CFDataRef dataFromImageDataProvider = NULL;
     GLenum format = GL_BGRA;
+    BOOL isLitteEndian = YES;
+    BOOL alphaFirst = NO;
+    BOOL premultiplied = NO;
     
     if (!shouldRedrawUsingCoreGraphics) {
         /* Check that the memory layout is compatible with GL, as we cannot use glPixelStore to
@@ -94,6 +102,7 @@
                         shouldRedrawUsingCoreGraphics = YES;
                     }
                 } else if (byteOrderInfo == kCGBitmapByteOrderDefault || byteOrderInfo == kCGBitmapByteOrder32Big) {
+                    isLitteEndian = NO;
                     /* Big endian, for alpha-last we can use this bitmap directly in GL */
                     CGImageAlphaInfo alphaInfo = bitmapInfo & kCGBitmapAlphaInfoMask;
                     if (alphaInfo != kCGImageAlphaPremultipliedLast && alphaInfo != kCGImageAlphaLast &&
@@ -101,6 +110,8 @@
                         shouldRedrawUsingCoreGraphics = YES;
                     } else {
                         /* Can access directly using GL_RGBA pixel format */
+                        premultiplied = alphaInfo == kCGImageAlphaPremultipliedLast || alphaInfo == kCGImageAlphaPremultipliedLast;
+                        alphaFirst = alphaInfo == kCGImageAlphaFirst || alphaInfo == kCGImageAlphaPremultipliedFirst;
                         format = GL_RGBA;
                     }
                 }
@@ -122,6 +133,9 @@
         CGContextDrawImage(imageContext, CGRectMake(0.0, 0.0, pixelSizeToUseForTexture.width, pixelSizeToUseForTexture.height), newImageSource);
         CGContextRelease(imageContext);
         CGColorSpaceRelease(genericRGBColorspace);
+        isLitteEndian = YES;
+        alphaFirst = YES;
+        premultiplied = YES;
     }
     else
     {
@@ -130,29 +144,51 @@
         imageData = (GLubyte *)CFDataGetBytePtr(dataFromImageDataProvider);
     }
     
-    //    elapsedTime = (CFAbsoluteTimeGetCurrent() - startTime) * 1000.0;
-    //    NSLog(@"Core Graphics drawing time: %f", elapsedTime);
+    if (removePremultiplication && premultiplied) {
+        NSUInteger    totalNumberOfPixels = round(pixelSizeToUseForTexture.width * pixelSizeToUseForTexture.height);
+        uint32_t    *pixelP = (uint32_t *)imageData;
+        uint32_t    pixel;
+        CGFloat        srcR, srcG, srcB, srcA;
+        
+        for (NSUInteger idx=0; idx<totalNumberOfPixels; idx++, pixelP++) {
+            pixel = isLitteEndian ? CFSwapInt32LittleToHost(*pixelP) : CFSwapInt32BigToHost(*pixelP);
+            
+            if (alphaFirst) {
+                srcA = (CGFloat)((pixel & 0xff000000) >> 24) / 255.0f;
+            }
+            else {
+                srcA = (CGFloat)(pixel & 0x000000ff) / 255.0f;
+                pixel >>= 8;
+            }
+            
+            srcR = (CGFloat)((pixel & 0x00ff0000) >> 16) / 255.0f;
+            srcG = (CGFloat)((pixel & 0x0000ff00) >> 8) / 255.0f;
+            srcB = (CGFloat)(pixel & 0x000000ff) / 255.0f;
+            
+            srcR /= srcA; srcG /= srcA; srcB /= srcA;
+            
+            pixel = (uint32_t)(srcR * 255.0) << 16;
+            pixel |= (uint32_t)(srcG * 255.0) << 8;
+            pixel |= (uint32_t)(srcB * 255.0);
+            
+            if (alphaFirst) {
+                pixel |= (uint32_t)(srcA * 255.0) << 24;
+            }
+            else {
+                pixel <<= 8;
+                pixel |= (uint32_t)(srcA * 255.0);
+            }
+            *pixelP = isLitteEndian ? CFSwapInt32HostToLittle(pixel) : CFSwapInt32HostToBig(pixel);
+        }
+    }
     
-    //    CGFloat currentRedTotal = 0.0f, currentGreenTotal = 0.0f, currentBlueTotal = 0.0f, currentAlphaTotal = 0.0f;
-    //    NSUInteger totalNumberOfPixels = round(pixelSizeToUseForTexture.width * pixelSizeToUseForTexture.height);
-    //
-    //    for (NSUInteger currentPixel = 0; currentPixel < totalNumberOfPixels; currentPixel++)
-    //    {
-    //        currentBlueTotal += (CGFloat)imageData[(currentPixel * 4)] / 255.0f;
-    //        currentGreenTotal += (CGFloat)imageData[(currentPixel * 4) + 1] / 255.0f;
-    //        currentRedTotal += (CGFloat)imageData[(currentPixel * 4 + 2)] / 255.0f;
-    //        currentAlphaTotal += (CGFloat)imageData[(currentPixel * 4) + 3] / 255.0f;
-    //    }
-    //
-    //    NSLog(@"Debug, average input image red: %f, green: %f, blue: %f, alpha: %f", currentRedTotal / (CGFloat)totalNumberOfPixels, currentGreenTotal / (CGFloat)totalNumberOfPixels, currentBlueTotal / (CGFloat)totalNumberOfPixels, currentAlphaTotal / (CGFloat)totalNumberOfPixels);
-    
+  
     runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
         
-        outputFramebuffer = [[self.context framebufferCache] fetchFramebufferForSize:pixelSizeToUseForTexture missCVPixelBuffer:NO];
+        outputFramebuffer = [[self.context framebufferCache] fetchFramebufferForSize:pixelSizeToUseForTexture missCVPixelBuffer:YES];
         
-//        [outputFramebuffer activateFramebuffer];
-        
+        [outputFramebuffer activateFramebuffer];
         
         glBindTexture(GL_TEXTURE_2D, [outputFramebuffer texture]);
         if (self.shouldSmoothlyScaleOutput)
@@ -182,8 +218,6 @@
     }
     
     return self;
-    
-    return self;
 }
 
 - (void)dealloc
@@ -197,6 +231,81 @@
 #endif
 }
 
+- (void)processImage
+{
+    [self processImageWithCompletionHandler:nil];
+}
+
+- (void)informTargetsAboutNewFrame;
+{
+    // Get all targets the framebuffer so they can grab a lock on it
+    for (id<MKGPUImageInput> currentTarget in targets)
+    {
+        [currentTarget setInputSize:pixelSizeOfImage];
+        NSInteger indexOfObject = [targets indexOfObject:currentTarget];
+        [currentTarget setInputFramebuffer:outputFramebuffer atIndex:indexOfObject];
+    }
+
+    // Release our hold so it can return to the cache immediately upon processing
+    [[self framebufferForOutput] unlock];
+
+    [self removeOutputFramebuffer];
+
+    // Trigger processing last, so that our unlock comes first in serial execution, avoiding the need for a callback
+    for (id<MKGPUImageInput> currentTarget in targets)
+    {
+        NSInteger indexOfObject = [targets indexOfObject:currentTarget];
+        [currentTarget newFrameReadyIndex:indexOfObject];
+    }
+}
+
+- (BOOL)processImageWithCompletionHandler:(void (^)(void))completion
+{
+    hasProcessedImage = YES;
+    
+    if (dispatch_semaphore_wait(imageUpdateSemaphore, DISPATCH_TIME_NOW) != 0)
+    {
+        return NO;
+    }
+    
+    runMSynchronouslyOnContextQueue(self.context, ^{
+        
+        [self informTargetsAboutNewFrame];
+        
+        dispatch_semaphore_signal(imageUpdateSemaphore);
+        
+        if (completion != nil) {
+            completion();
+        }
+    });
+    
+    return YES;
+}
+
+- (CGSize)outputImageSize;
+{
+    return pixelSizeOfImage;
+}
+
+- (void)addTarget:(id<MKGPUImageInput>)newTarget;
+{
+    if([targets containsObject:newTarget])
+    {
+        return;
+    }
+    
+    runMSynchronouslyOnContextQueue(self.context, ^{
+        [targets addObject:newTarget];
+    });
+    
+    if (hasProcessedImage)
+    {
+        [newTarget setInputSize:pixelSizeOfImage];
+        NSInteger indexOfObject = [targets indexOfObject:newTarget];
+        [newTarget setInputFramebuffer:outputFramebuffer atIndex:indexOfObject];
+    }
+    
+}
 
 
 @end

@@ -233,7 +233,8 @@ NSString *const kMKGPUImagePassthroughFragmentShaderString = SHADER_STRING
     for (id<MKGPUImageInput> currentTarget in targets)
     {
         [currentTarget setInputSize:[self outputFrameSize]];
-        [currentTarget setInputFramebuffer:[self framebufferForOutput]];
+        NSInteger indexOfObject = [targets indexOfObject:currentTarget];
+        [currentTarget setInputFramebuffer:[self framebufferForOutput] atIndex:indexOfObject];
     }
     
     // Release our hold so it can return to the cache immediately upon processing
@@ -244,7 +245,8 @@ NSString *const kMKGPUImagePassthroughFragmentShaderString = SHADER_STRING
     // Trigger processing last, so that our unlock comes first in serial execution, avoiding the need for a callback
     for (id<MKGPUImageInput> currentTarget in targets)
     {
-        [currentTarget newFrameReady];
+        NSInteger indexOfObject = [targets indexOfObject:currentTarget];
+        [currentTarget newFrameReadyIndex:indexOfObject];
     }
 }
 
@@ -261,13 +263,13 @@ NSString *const kMKGPUImagePassthroughFragmentShaderString = SHADER_STRING
     inputTextureSize = newSize;
 }
 
-- (void)setInputFramebuffer:(MKGPUImageFramebuffer *)newInputFramebuffer;
+- (void)setInputFramebuffer:(MKGPUImageFramebuffer *)newInputFramebuffer atIndex:(NSInteger)textureIndex;
 {
     firstInputFramebuffer = newInputFramebuffer;
     [firstInputFramebuffer lock];
 }
 
-- (void)newFrameReady;
+- (void)newFrameReadyIndex:(NSInteger)textureIndex;
 {
     static const GLfloat imageVertices[] = {
         -1.0f, -1.0f,

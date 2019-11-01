@@ -69,7 +69,6 @@
     runMSynchronouslyOnContextQueue(self.context, ^{
         NSString *lookupHash = [self hashForSize:framebufferSize textureOptions:textureOptions missCVPixelBuffer:missCVPixelBuffer];
         
-        
         NSMutableArray *frameBufferArr = [framebufferCache objectForKey:lookupHash];
         
         if (frameBufferArr != nil && frameBufferArr.count > 0){

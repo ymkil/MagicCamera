@@ -12,6 +12,7 @@
 #import "MKLandmarkManager.h"
 
 #import <GPUImage/GPUImage.h>
+#import "MKGPUImagePicture.h"
 #import <GLKit/GLKit.h>
 
 #import "MKTool.h"
@@ -296,14 +297,10 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     NSString *path = [node.filePath stringByAppendingPathComponent:imageName];
     UIImage *image = [UIImage imageWithContentsOfFile:path];
     
-    GPUImagePicture *picture1 = [[GPUImagePicture alloc] initWithImage:image];
-    GPUImageFramebuffer *frameBuffer1 =  [picture1 framebufferForOutput];
+    MKGPUImagePicture *picture = [[MKGPUImagePicture alloc] initWithContext:self.context withImage:image];
+    MKGPUImageFramebuffer *pictureFrameBuffer = [picture framebufferForOutput];
     
-    return [frameBuffer1 texture];
-}
-
-float getDistance(float x1, float y1, float x2, float y2) {
-    return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+    return [pictureFrameBuffer texture];
 }
 
 @end

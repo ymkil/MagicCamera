@@ -20,6 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (id)initWithContext:(MKGPUImageContext *)context withImage:(UIImage *)newImageSource;
 
+// Image rendering
+- (void)processImage;
+- (CGSize)outputImageSize;
+
 @end
 
 NS_ASSUME_NONNULL_END

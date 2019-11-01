@@ -100,8 +100,9 @@
             } else {
                 [currentTarget setInputSize:CGSizeMake(width, height)];
             }
-            [currentTarget setInputFramebuffer:outputFramebuffer];
-            [currentTarget newFrameReady];
+            NSInteger indexOfObject = [targets indexOfObject:currentTarget];
+            [currentTarget setInputFramebuffer:outputFramebuffer atIndex:indexOfObject];
+            [currentTarget newFrameReadyIndex:indexOfObject];
         }
         
         [outputFramebuffer unlock];

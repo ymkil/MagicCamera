@@ -14,16 +14,26 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MKLandmarkManager : NSObject
-
+// 人脸数据 [MKFaceInfo]
 @property (nonatomic, strong) NSArray *faceData;
-
+// 检测人脸图片的宽度
 @property (nonatomic, assign) CGFloat detectionWidth;
-
+// 检测人脸图片的高度
 @property (nonatomic, assign) CGFloat detectionHeight;
 
 + (instancetype)shareManager;
 
+// 像素坐标点转换成位置坐标
 -(NSArray<NSValue *> *)conversionCoordinatePoint:(NSArray<NSValue *> *)pixelPoints;
+
+/**
+ * 获取用于美型处理的坐标
+ * @param vertexPoints      顶点坐标, 共122个顶点
+ * @param texturePoints     纹理坐标, 共122个顶点
+ @ @param length            数组长度
+ * @param faceIndex         人脸索引
+ */
+-(void)generateFaceAdjustVertexPoints:(float *)vertexPoints withTexturePoints:(float *)texturePoints withLength:(int)length withFaceIndex:(int)faceIndex;
 @end
 
 // 人脸数据

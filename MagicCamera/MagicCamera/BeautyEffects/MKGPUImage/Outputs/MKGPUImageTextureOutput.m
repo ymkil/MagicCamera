@@ -142,13 +142,13 @@
     
 }
 
-- (void)setInputFramebuffer:(MKGPUImageFramebuffer *)newInputFramebuffer;
+- (void)setInputFramebuffer:(MKGPUImageFramebuffer *)newInputFramebuffer atIndex:(NSInteger)textureIndex;
 {
     firstInputFramebuffer = newInputFramebuffer;
     [firstInputFramebuffer lock];
 }
 
-- (void)newFrameReady;
+- (void)newFrameReadyIndex:(NSInteger)textureIndex;
 {
     runMSynchronouslyOnContextQueue(self.context, ^{
         [self.context useAsCurrentContext];
