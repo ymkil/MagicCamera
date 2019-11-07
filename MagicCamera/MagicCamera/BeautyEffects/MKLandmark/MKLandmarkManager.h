@@ -26,14 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
 // 像素坐标点转换成位置坐标
 -(NSArray<NSValue *> *)conversionCoordinatePoint:(NSArray<NSValue *> *)pixelPoints;
 
-/**
- * 获取用于美型处理的坐标
- * @param vertexPoints      顶点坐标, 共122个顶点
- * @param texturePoints     纹理坐标, 共122个顶点
- @ @param length            数组长度
- * @param faceIndex         人脸索引
- */
--(void)generateFaceAdjustVertexPoints:(float *)vertexPoints withTexturePoints:(float *)texturePoints withLength:(int)length withFaceIndex:(int)faceIndex;
 @end
 
 // 人脸数据

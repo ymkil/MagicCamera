@@ -2,206 +2,168 @@
 //  MKGPUImageBeautyMakeupFilter.m
 //  MagicCamera
 //
-//  Created by mkil on 2019/10/24.
+//  Created by mkil on 2019/11/6.
 //  Copyright © 2019 黎宁康. All rights reserved.
 //
 
 #import "MKGPUImageBeautyMakeupFilter.h"
 #import "MKHeader.h"
 
+#import "MKGPUImagePicture.h"
 #import "MKLandmarkManager.h"
+#import "MKLandmarkEngine.h"
 #import "MKFaceBaseData.h"
 
-#import <GLKit/GLKit.h>
 
+NSString *const kMKGPUImageBeautyMakeupVertexShaderString = SHADER_STRING
+(
+ attribute vec4 position;
+ attribute vec4 inputTextureCoordinate;
+ 
+ varying vec2 textureCoordinate;
+ varying vec2 maskCoordinate;        // 遮罩纹理坐标
+ void main()
+ {
+     gl_Position = position;
+     // 原图纹理坐标，用顶点来计算
+     textureCoordinate = position.xy * 0.5 + 0.5;
+     // 遮罩纹理坐标，用传进来的坐标值计算
+     maskCoordinate = inputTextureCoordinate.xy;
+ }
+ );
 
 NSString *const kMKGPUImageBeautyMakeupFragmentShaderString = SHADER_STRING
 (
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+ precision highp float;
+#else
+ precision mediump float;
+#endif
+ 
  varying highp vec2 textureCoordinate;
  
- uniform sampler2D inputImageTexture;
+ varying highp vec2 maskCoordinate;        // 遮罩纹理坐标
  
- // 图像笛卡尔坐标系的关键点，也就是纹理坐标乘以宽高得到
- uniform highp vec2 cartesianPoints[106];
+ uniform sampler2D inputImageTexture; // 图像纹理, 原图、素材等
  
- // 纹理宽度
- uniform int textureWidth;
- // 纹理高度
- uniform int textureHeight;
+ uniform sampler2D materialTexture;  // 素材纹理, 对于唇彩来说，这里存放的是lut纹理
  
- // 是否允许美型处理，存在人脸时为1，没有人脸时为0
- uniform int enableReshape;
+ uniform sampler2D maskTexture;      // 遮罩纹理, 唇彩或者眼睛的遮罩纹理
  
- // 曲线形变处理
-lowp vec2 curveWarp(lowp vec2 textureCoord, lowp vec2 originPosition, lowp vec2 targetPosition, lowp float radius)
-{
-    lowp vec2 offset = vec2(0.0);
-    lowp vec2 result = vec2(0.0);
-    
-    lowp vec2 direction = targetPosition - originPosition;
-    
-    lowp float infect = distance(textureCoord, originPosition)/radius;
-    
-    infect = 1.0 - infect;
-    infect = clamp(infect, 0.0, 1.0);
-    offset = direction * infect;
-    
-    result = textureCoord - offset;
-    
-    return result;
-}
- 
- // 大眼处理
- lowp vec2 enlargeEye(lowp vec2 currentCoordinate, lowp vec2 circleCenter, lowp float radius, lowp float intensity)
-{
-    lowp float currentDistance = distance(currentCoordinate, circleCenter);
-    lowp float weight = currentDistance / radius;
-    weight = 1.0 - intensity * (1.0 - weight * weight);
-    weight = clamp(weight, 0.0, 1.0);
-    currentCoordinate = circleCenter + (currentCoordinate - circleCenter) * weight;
-    
-    return currentCoordinate;
-}
- // 瘦脸
- lowp vec2 faceLift(lowp vec2 currentCoordinate, lowp float faceLength)
- {
-     lowp vec2 coordinate = currentCoordinate;
-     lowp vec2 currentPoint = vec2(0.0);
-     lowp vec2 destPoint = vec2(0.0);
-     
-     lowp float faceLiftScale = 0.8 * 0.1;
-     lowp float radius = faceLength;
-     
-     currentPoint = cartesianPoints[3];
-     destPoint = currentPoint + (cartesianPoints[44] - currentPoint) * faceLiftScale;
-     coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
-     
-     currentPoint = cartesianPoints[29];
-     destPoint = currentPoint + (cartesianPoints[44] - currentPoint) * faceLiftScale;
-     coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
-     
-     radius = faceLength * 0.8;
-     currentPoint = cartesianPoints[10];
-     destPoint = currentPoint + (cartesianPoints[46] - currentPoint) * (faceLiftScale * 0.6);
-     coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
-     
-     currentPoint = cartesianPoints[22];
-     destPoint = currentPoint + (cartesianPoints[46] - currentPoint) * (faceLiftScale * 0.6);
-     coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
-     
-     return coordinate;
- }
- 
- // 削脸
- lowp vec2 faceShave(lowp vec2 currentCoordinate, lowp float faceLength)
-{
-    lowp vec2 coordinate = currentCoordinate;
-    lowp vec2 currentPoint = vec2(0.0);
-    lowp vec2 destPoint = vec2(0.0);
-    lowp float faceShaveScale = 0.8 * 0.25;
-    lowp float radius = faceLength * 1.0;
-    
-    // 下巴中心
-    lowp vec2 chinCenter = (cartesianPoints[16] + cartesianPoints[93]) * 0.5;
-    currentPoint = cartesianPoints[13];
-    destPoint = currentPoint + (chinCenter - currentPoint) * faceShaveScale;
-    coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
-    
-    currentPoint = cartesianPoints[19];
-    destPoint = currentPoint + (chinCenter - currentPoint) * faceShaveScale;
-    coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
-    
-    return coordinate;
-}
-
- // 处理下巴
- lowp vec2 chinChange(lowp vec2 currentCoordinate, lowp float faceLength)
-{
-    lowp vec2 coordinate = currentCoordinate;
-    lowp vec2 currentPoint = vec2(0.0);
-    lowp vec2 destPoint = vec2(0.0);
-    lowp float chinScale = 0.8 * 0.08;
-    lowp float radius = faceLength * 1.25;
-    currentPoint = cartesianPoints[16];
-    destPoint = currentPoint + (cartesianPoints[46] - currentPoint) * chinScale;
-    coordinate = curveWarp(coordinate, currentPoint, destPoint, radius);
-    
-    return coordinate;
-}
-
+ uniform float strength;             // 彩妆强度
  
  void main()
  {
-     lowp vec2 coordinate = textureCoordinate.xy;
-     if (enableReshape == 0 || (cartesianPoints[46].x / float(textureWidth) <= 0.03) || (cartesianPoints[46].y / float(textureHeight) <= 0.03)) {
-        gl_FragColor = texture2D(inputImageTexture, coordinate);
+     vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
+     vec4 lipMaskColor = texture2D(materialTexture, maskCoordinate);
+     
+     if (lipMaskColor.r > 0.005) {
+         vec2 quad1;
+         vec2 quad2;
+         vec2 texPos1;
+         vec2 texPos2;
+         
+         float blueColor = textureColor.b * 15.0;
+         
+         quad1.y = floor(floor(blueColor) / 4.0);
+         quad1.x = floor(blueColor) - (quad1.y * 4.0);
+         
+         quad2.y = floor(ceil(blueColor) / 4.0);
+         quad2.x = ceil(blueColor) - (quad2.y * 4.0);
+         
+         texPos1.xy = (quad1.xy * 0.25) + 0.5/64.0 + ((0.25 - 1.0/64.0) * textureColor.rg);
+         texPos2.xy = (quad2.xy * 0.25) + 0.5/64.0 + ((0.25 - 1.0/64.0) * textureColor.rg);
+         
+         lowp vec3 newColor1 = texture2D(materialTexture, texPos1).rgb;
+         lowp vec3 newColor2 = texture2D(materialTexture, texPos2).rgb;
+         
+         lowp vec3 newColor = mix(newColor1, newColor2, fract(blueColor));
+         
+         textureColor = vec4(newColor, 1.0) * (lipMaskColor.r * strength);
      } else {
-         
-         // 将坐标转成图像大小，这里是为了方便计算
-         coordinate = textureCoordinate * vec2(float(textureWidth),float(textureHeight));
-         
-         // 两个瞳孔的距离
-         lowp float eyeDistance = distance(cartesianPoints[74], cartesianPoints[77]);
-         
-         // 瘦脸
-         coordinate = faceLift(coordinate, eyeDistance);
-         
-         // 削脸
-         coordinate = faceShave(coordinate, eyeDistance);
-         
-         // 下巴
-         coordinate = chinChange(coordinate, eyeDistance);
-         
-         
-         // 大眼
-         lowp float eyeEnlarge = 0.8 * 0.25; // 放大倍数
-         if (eyeEnlarge > 0.0) {
-             lowp float radius = eyeDistance * 0.33; // 眼睛放大半径
-             coordinate = enlargeEye(coordinate, cartesianPoints[74] + (cartesianPoints[77] - cartesianPoints[74]) * 0.05, radius, eyeEnlarge);
-             coordinate = enlargeEye(coordinate, cartesianPoints[77] + (cartesianPoints[74] - cartesianPoints[77]) * 0.05, radius, eyeEnlarge);
-         }
-         
-         // 转变回原来的纹理坐标系
-         coordinate = coordinate / vec2(float(textureWidth), float(textureHeight));
-         gl_FragColor = texture2D(inputImageTexture, coordinate);
+         textureColor = vec4(0.0, 0.0, 0.0, 0.0);
      }
+     gl_FragColor = textureColor;
  }
  );
 
 @interface MKGPUImageBeautyMakeupFilter()
 {
-    GLint _cartesianPointsSlot;
-    GLint _textureWidthSlot;
-    GLint _textureHeighSlot;
-    GLint _enableReshapeSlot;
+    MKGLProgram *_program;
+    
+    GLint _positionAttribute;
+    GLint _inTextureAttribute;
+
+    GLuint _inputImageTextureSlot;
+    GLuint _materialTextureSlot;
+    GLuint _maskTextureSlot;
+    
+    GLuint _strengthSlot;
     
     // 顶点坐标
-    float vertexPoints[122 * 2];
-    // 纹理坐标
-    float texturePoints[122 * 2];
+    float vertexPoints[20 * 2];
     
-    // 笛卡尔坐标系
-    float cartesianVertices[106 * 2];
+    GLuint maskTexture;
+    GLuint lutTexture;
 }
+
+@property(nonatomic, strong) MKGPUImagePicture *maskPicture;
+@property(nonatomic, strong) MKGPUImagePicture *lutPicture;
 
 @end
 
 
 @implementation MKGPUImageBeautyMakeupFilter
 
-
 - (id)initWithContext:(MKGPUImageContext *)context vertexShaderFromString:(NSString *)vertexShaderString fragmentShaderFromString:(NSString *)fragmentShaderString {
-    
-    if (!(self = [super initWithContext:context vertexShaderFromString:vertexShaderString fragmentShaderFromString:kMKGPUImageBeautyMakeupFragmentShaderString])) {
+    if (!(self = [super initWithContext:context vertexShaderFromString:vertexShaderString fragmentShaderFromString:fragmentShaderString])) {
         return nil;
     }
     
-    _cartesianPointsSlot = [filterProgram uniformIndex:@"cartesianPoints"];
-    _textureWidthSlot = [filterProgram uniformIndex:@"textureWidth"];
-    _textureHeighSlot = [filterProgram uniformIndex:@"textureHeight"];
-    _enableReshapeSlot = [filterProgram uniformIndex:@"enableReshape"];
+    _program = [self.context programForVertexShaderString:kMKGPUImageBeautyMakeupVertexShaderString fragmentShaderString:kMKGPUImageBeautyMakeupFragmentShaderString];
     
+    if (![_program link])
+    {
+        NSString *progLog = [_program programLog];
+        NSLog(@"Program link log: %@", progLog);
+        NSString *fragLog = [_program fragmentShaderLog];
+        NSLog(@"Fragment shader compile log: %@", fragLog);
+        NSString *vertLog = [_program vertexShaderLog];
+        NSLog(@"Vertex shader compile log: %@", vertLog);
+        _program = nil;
+        NSAssert(NO, @"Filter shader link failed");
+    }
+    
+    _positionAttribute = [_program attributeIndex:@"position"];
+    _inTextureAttribute = [_program attributeIndex:@"inputTextureCoordinate"];
+    
+    _inputImageTextureSlot = [_program uniformIndex:@"inputImageTexture"];
+    _materialTextureSlot = [_program uniformIndex:@"materialTexture"];
+    _maskTextureSlot = [_program uniformIndex:@"maskTexture"];
+    
+    _strengthSlot = [_program uniformIndex:@"strength"];
+    
+    [self generateTexture];
+
     return self;
+}
+
+- (void)generateTexture
+{
+    UIImage *maskImage = [UIImage imageNamed:@"makeup_lips_mask"];
+    UIImage *lutImage = [UIImage imageNamed:@"lut"];
+    
+    // TODO: 强引用防止纹理被回收。 可以单独创建纹理(不交给MKGPUImageFramebuffer管理，自行管理创建和回收)
+    // 遮罩纹理
+    _maskPicture = [[MKGPUImagePicture alloc] initWithContext:self.context withImage:maskImage];
+    MKGPUImageFramebuffer *maskFrameBuffer = [_maskPicture framebufferForOutput];
+    
+    // lut 纹理
+    _lutPicture = [[MKGPUImagePicture alloc] initWithContext:self.context withImage:lutImage];
+    MKGPUImageFramebuffer *lutFrameBuffer = [_lutPicture framebufferForOutput];
+    
+    maskTexture = [maskFrameBuffer texture];
+    lutTexture = [lutFrameBuffer texture];
 }
 
 - (void)renderToTextureWithVertices:(const GLfloat *)vertices textureCoordinates:(const GLfloat *)textureCoordinates;{
@@ -215,46 +177,57 @@ lowp vec2 curveWarp(lowp vec2 textureCoord, lowp vec2 originPosition, lowp vec2 
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    if (MKLandmarkManager.shareManager.faceData && MKLandmarkManager.shareManager.faceData.count > 0) {
-        
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, [firstInputFramebuffer texture]);
-        
-        int length = sizeof(vertexPoints)/sizeof(vertexPoints[0]);
-        
-        [MKLandmarkManager.shareManager generateFaceAdjustVertexPoints:vertexPoints withTexturePoints:texturePoints withLength:length withFaceIndex:0];
-        
-        glVertexAttribPointer(filterPositionAttribute, 2, GL_FLOAT, 0, 0, vertexPoints);
-        glVertexAttribPointer(filterTextureCoordinateAttribute, 2, GL_FLOAT, 0, 0, texturePoints);
-        
-        glUniform1i(_textureWidthSlot, [firstInputFramebuffer size].width);
-        glUniform1i(_textureHeighSlot, [firstInputFramebuffer size].height);
-        
-        
-        for (int i = 0; i < 106; i ++) {
-            cartesianVertices[i * 2] = texturePoints[i * 2] * [firstInputFramebuffer size].width;
-            cartesianVertices[i * 2 + 1] = texturePoints[i * 2 + 1] * [firstInputFramebuffer size].height;
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, [firstInputFramebuffer texture]);
+    
+    glUniform1i(filterInputTextureUniform, 2);
+    
+    glVertexAttribPointer(filterPositionAttribute, 2, GL_FLOAT, 0, 0, vertices);
+    glVertexAttribPointer(filterTextureCoordinateAttribute, 2, GL_FLOAT, 0, 0, textureCoordinates);
+    
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    
+    // 逐一绘制
+    if(MKLandmarkManager.shareManager.faceData) {
+        for(int i = 0; i < MKLandmarkManager.shareManager.faceData.count; i ++) {
+            [self drawBeautyMakeupIndexFace:i withTexture:[firstInputFramebuffer texture]];
         }
-        
-        glUniform2fv(_cartesianPointsSlot, 106, cartesianVertices);
-        
-        glUniform1i(_enableReshapeSlot, 1);
-        
-        glDrawElements(GL_TRIANGLES,sizeof(FaceImageIndices)/sizeof(FaceImageIndices[0]), GL_UNSIGNED_SHORT, FaceImageIndices);
-    } else {
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, [firstInputFramebuffer texture]);
-        
-        glUniform1i(filterInputTextureUniform, 2);
-        
-        glVertexAttribPointer(filterPositionAttribute, 2, GL_FLOAT, 0, 0, vertices);
-        glVertexAttribPointer(filterTextureCoordinateAttribute, 2, GL_FLOAT, 0, 0, textureCoordinates);
-        
-        glUniform1i(_enableReshapeSlot, 0);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }
     
     [firstInputFramebuffer unlock];
+}
+
+-(void)drawBeautyMakeupIndexFace:(int)index withTexture:(GLuint)textureId
+{
+    glEnable(GL_BLEND);
+    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+    
+    [outputFramebuffer activateFramebuffer];
+    [_program use];
+    
+    [MKLandmarkEngine.shareManager getLipsVertices:vertexPoints withLength:40 withFaceIndex:index];
+    
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glUniform1i(_inputImageTextureSlot, 2);
+    
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, lutTexture);
+    glUniform1i(_materialTextureSlot, 3);
+    
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, maskTexture);
+    glUniform1i(_maskTextureSlot, 4);
+    
+    glUniform1f(_strengthSlot, 1);
+    
+    glVertexAttribPointer(_positionAttribute, 2, GL_FLOAT, 0, 0, vertexPoints);
+    glEnableVertexAttribArray(_positionAttribute);
+    glVertexAttribPointer(_inTextureAttribute, 2, GL_FLOAT, 0, 0, LipsMaskTextureVertices);
+    glEnableVertexAttribArray(_inTextureAttribute);
+    
+    glDrawElements(GL_TRIANGLES,sizeof(LipsIndices)/sizeof(LipsIndices[0]), GL_UNSIGNED_SHORT, LipsIndices);
+    glDisable(GL_BLEND);
 }
 
 @end

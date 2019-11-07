@@ -255,7 +255,6 @@ NSString *const kMKGPUImageDynamicSticker2DFragmentShaderString = SHADER_STRING
     
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, textureId);
-    
     glUniform1i(_inputTextureUniform, 3);
     
     glUniformMatrix4fv(_mvpMatrixSlot, 1, GL_FALSE, mvpMatrix.m);

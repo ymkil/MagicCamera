@@ -17,6 +17,7 @@
 #import "MKGPUImageLookupFilter.h"
 #import "MKGPUImageDynamicSticker2DFilter.h"
 #import "MKGPUImageBeautyMakeupFilter.h"
+#import "MKGPUImagePlasticFilter.h"
 
 @interface MKEffectHandler()
 {
@@ -39,6 +40,7 @@
 @property (nonatomic, strong) MKGPUImageKeyPointFilter *keyPointfilter;
 @property (nonatomic, strong) MKGPUImageLookupFilter *lookupFilter;
 @property (nonatomic, strong) MKGPUImageDynamicSticker2DFilter *dynamicSticker;
+@property (nonatomic, strong) MKGPUImagePlasticFilter *plasticFilter;
 @property (nonatomic, strong) MKGPUImageBeautyMakeupFilter *beautyMakeupFilter;
 
 @property (nonatomic, assign) BOOL initCommonProcess;
@@ -77,6 +79,7 @@
         _keyPointfilter = [[MKGPUImageKeyPointFilter alloc] initWithContext:_glContext];
         _lookupFilter = [[MKGPUImageLookupFilter alloc] initWithContext:_glContext];
         _dynamicSticker = [[MKGPUImageDynamicSticker2DFilter alloc] initWithContext:_glContext];
+        _plasticFilter = [[MKGPUImagePlasticFilter alloc] initWithContext:_glContext];
         _beautyMakeupFilter = [[MKGPUImageBeautyMakeupFilter alloc] initWithContext:_glContext];
     }
     return self;
@@ -107,8 +110,9 @@
         [filterChainArray addObject:self.lookupFilter];
         [filterChainArray addObject:self.dynamicSticker];
         [filterChainArray addObject:self.beautyMakeupFilter];
+        [filterChainArray addObject:self.plasticFilter];
         [filterChainArray addObject:self.keyPointfilter];
-        
+       
         if (![MGFaceLicenseHandle getLicense]) {
             [self.commonInputFilter addTarget:self.trackOutput];
         }

@@ -1,8 +1,8 @@
 //
-//  MKGPUImageBeautyMakeupFilter.h
+//  MKGPUImagePlasticFilter.h
 //  MagicCamera
 //
-//  Created by mkil on 2019/11/6.
+//  Created by mkil on 2019/10/24.
 //  Copyright © 2019 黎宁康. All rights reserved.
 //
 
@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MKGPUImageBeautyMakeupFilter : MKGPUImageFilter
+@interface MKGPUImagePlasticFilter : MKGPUImageFilter
 
 @end
 
