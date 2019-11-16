@@ -6,6 +6,59 @@
 //  Copyright © 2019 黎宁康. All rights reserved.
 //
 
+#if 1
+// 自定义摄像头采集部分，调试中
+#import "ViewController.h"
+#import "MKPreviewView.h"
+#import "MKBaseVideoCamera.h"
+#import "MKShootRecordView.h"
+
+@interface ViewController () <MKShootRecordViewDelegate>
+
+@property(nonatomic, strong)MKBaseVideoCamera *videoCamera;
+@property(nonatomic, strong)MKShootRecordView *shootRecordView;
+
+@end
+
+@implementation ViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    MKPreviewView *previewView = [[MKPreviewView alloc] initWithFrame:self.view.bounds];
+    [self.view addSubview:previewView];
+    
+    CGFloat x = CGRectGetMidX(self.view.bounds) - 40;
+    CGFloat y = CGRectGetHeight(self.view.bounds) - 80 - 60;
+    
+    _shootRecordView = [[MKShootRecordView alloc] initWithFrame:CGRectMake(x, y, 80, 80)];
+    _shootRecordView.delegate = self;
+    [self.view addSubview:_shootRecordView];
+    
+    _videoCamera = [[MKBaseVideoCamera alloc] initWithSessionPreset:AVCaptureSessionPreset640x480 cameraPosition:AVCaptureDevicePositionBack];
+    
+    NSError *error;
+    if ([_videoCamera setupSession:&error]) {
+        [previewView setSession:_videoCamera.captureSession];
+        [_videoCamera startSession];
+    } else {
+        NSLog(@"Error: %@", [error localizedDescription]);
+    }
+}
+
+- (void)startRecord
+{
+    NSLog(@"开始录制");
+}
+- (void)stopRecord
+{
+    NSLog(@"停止录制");
+}
+
+@end
+
+#else
+// GPUImage 摄像头采集部分，已实现大部分功能(美颜、2D贴纸、大脸瘦眼、唇彩等)
 #import "ViewController.h"
 #import "MKEffectFilter.h"
 #import <GPUImage/GPUImage.h>
@@ -95,3 +148,6 @@
 }
 
 @end
+
+
+#endif

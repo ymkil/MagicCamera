@@ -18,6 +18,7 @@
 #import "MKGPUImageDynamicSticker2DFilter.h"
 #import "MKGPUImageBeautyMakeupFilter.h"
 #import "MKGPUImagePlasticFilter.h"
+#import "MKGPUImageGaussianBlurFilter.h"
 
 @interface MKEffectHandler()
 {
@@ -42,6 +43,7 @@
 @property (nonatomic, strong) MKGPUImageDynamicSticker2DFilter *dynamicSticker;
 @property (nonatomic, strong) MKGPUImagePlasticFilter *plasticFilter;
 @property (nonatomic, strong) MKGPUImageBeautyMakeupFilter *beautyMakeupFilter;
+@property (nonatomic, strong) MKGPUImageGaussianBlurFilter *test;
 
 @property (nonatomic, assign) BOOL initCommonProcess;
 @property (nonatomic, assign) BOOL initProcess;
@@ -81,6 +83,7 @@
         _dynamicSticker = [[MKGPUImageDynamicSticker2DFilter alloc] initWithContext:_glContext];
         _plasticFilter = [[MKGPUImagePlasticFilter alloc] initWithContext:_glContext];
         _beautyMakeupFilter = [[MKGPUImageBeautyMakeupFilter alloc] initWithContext:_glContext];
+        _test = [[MKGPUImageGaussianBlurFilter alloc] initWithContext:_glContext];
     }
     return self;
 }
@@ -112,6 +115,7 @@
         [filterChainArray addObject:self.beautyMakeupFilter];
         [filterChainArray addObject:self.plasticFilter];
         [filterChainArray addObject:self.keyPointfilter];
+        [filterChainArray addObject:self.test];
        
         if (![MGFaceLicenseHandle getLicense]) {
             [self.commonInputFilter addTarget:self.trackOutput];

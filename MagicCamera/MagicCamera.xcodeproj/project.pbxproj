@@ -45,8 +45,13 @@
 		E8505D3F2361441E00D75B7B /* MKGPUImagePlasticFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E8505D3E2361441E00D75B7B /* MKGPUImagePlasticFilter.m */; };
 		E8521B262364481600338E6D /* MKGPUImageTwoInputFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E8521B252364481600338E6D /* MKGPUImageTwoInputFilter.m */; };
 		E877A7D3236936DA008F1631 /* MKFaceBaseData.m in Sources */ = {isa = PBXBuildFile; fileRef = E877A7D2236936DA008F1631 /* MKFaceBaseData.m */; };
+		E883CD94237906E600666757 /* MKGPUImageFilterGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = E883CD93237906E600666757 /* MKGPUImageFilterGroup.m */; };
 		E8ABF678237115C600BEEAB8 /* MKLandmarkEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = E8ABF677237115C600BEEAB8 /* MKLandmarkEngine.m */; };
 		E8C39462234D7C90003FDB88 /* MKTool.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C39461234D7C90003FDB88 /* MKTool.m */; };
+		E8C76E29237CF71A002C3170 /* MKGPUImageGaussianBlurFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C76E28237CF71A002C3170 /* MKGPUImageGaussianBlurFilter.m */; };
+		E8C76E6B237FE9C8002C3170 /* MKBaseVideoCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C76E6A237FE9C8002C3170 /* MKBaseVideoCamera.m */; };
+		E8C76E6F237FEA2D002C3170 /* MKShootRecordView.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C76E6E237FEA2D002C3170 /* MKShootRecordView.m */; };
+		E8C76E72237FEBD1002C3170 /* MKPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C76E71237FEBD1002C3170 /* MKPreviewView.m */; };
 		E8F0504923711D2800048153 /* lut.png in Resources */ = {isa = PBXBuildFile; fileRef = E8F0504823711D2800048153 /* lut.png */; };
 		E8F0504B23711D4200048153 /* makeup_lips_mask.png in Resources */ = {isa = PBXBuildFile; fileRef = E8F0504A23711D4200048153 /* makeup_lips_mask.png */; };
 		E8F0504E2372662C00048153 /* MKGPUImageBeautyMakeupFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E8F0504D2372662C00048153 /* MKGPUImageBeautyMakeupFilter.m */; };
@@ -133,10 +138,20 @@
 		E8521B252364481600338E6D /* MKGPUImageTwoInputFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKGPUImageTwoInputFilter.m; sourceTree = "<group>"; };
 		E877A7D1236936DA008F1631 /* MKFaceBaseData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKFaceBaseData.h; sourceTree = "<group>"; };
 		E877A7D2236936DA008F1631 /* MKFaceBaseData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKFaceBaseData.m; sourceTree = "<group>"; };
+		E883CD92237906E600666757 /* MKGPUImageFilterGroup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKGPUImageFilterGroup.h; sourceTree = "<group>"; };
+		E883CD93237906E600666757 /* MKGPUImageFilterGroup.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKGPUImageFilterGroup.m; sourceTree = "<group>"; };
 		E8ABF676237115C600BEEAB8 /* MKLandmarkEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKLandmarkEngine.h; sourceTree = "<group>"; };
 		E8ABF677237115C600BEEAB8 /* MKLandmarkEngine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKLandmarkEngine.m; sourceTree = "<group>"; };
 		E8C39460234D7C90003FDB88 /* MKTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKTool.h; sourceTree = "<group>"; };
 		E8C39461234D7C90003FDB88 /* MKTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKTool.m; sourceTree = "<group>"; };
+		E8C76E27237CF71A002C3170 /* MKGPUImageGaussianBlurFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKGPUImageGaussianBlurFilter.h; sourceTree = "<group>"; };
+		E8C76E28237CF71A002C3170 /* MKGPUImageGaussianBlurFilter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKGPUImageGaussianBlurFilter.m; sourceTree = "<group>"; };
+		E8C76E69237FE9C8002C3170 /* MKBaseVideoCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKBaseVideoCamera.h; sourceTree = "<group>"; };
+		E8C76E6A237FE9C8002C3170 /* MKBaseVideoCamera.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKBaseVideoCamera.m; sourceTree = "<group>"; };
+		E8C76E6D237FEA2D002C3170 /* MKShootRecordView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKShootRecordView.h; sourceTree = "<group>"; };
+		E8C76E6E237FEA2D002C3170 /* MKShootRecordView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKShootRecordView.m; sourceTree = "<group>"; };
+		E8C76E70237FEBD1002C3170 /* MKPreviewView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKPreviewView.h; sourceTree = "<group>"; };
+		E8C76E71237FEBD1002C3170 /* MKPreviewView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKPreviewView.m; sourceTree = "<group>"; };
 		E8F0504823711D2800048153 /* lut.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lut.png; sourceTree = "<group>"; };
 		E8F0504A23711D4200048153 /* makeup_lips_mask.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = makeup_lips_mask.png; sourceTree = "<group>"; };
 		E8F0504C2372662C00048153 /* MKGPUImageBeautyMakeupFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKGPUImageBeautyMakeupFilter.h; sourceTree = "<group>"; };
@@ -262,6 +277,7 @@
 		E80C20EF231F64C000331BBE /* BeautyEffects */ = {
 			isa = PBXGroup;
 			children = (
+				E8C76E68237FE4CE002C3170 /* MKVideo */,
 				E80C21302320AFF400331BBE /* MKLandmark */,
 				E80C212E2320AFF400331BBE /* MKHelp */,
 				E80C212B2320AFF400331BBE /* MKHandle */,
@@ -302,6 +318,10 @@
 				E82F42C223273D6100A81E4C /* MKGPUImageLookupFilter.m */,
 				E8521B242364481600338E6D /* MKGPUImageTwoInputFilter.h */,
 				E8521B252364481600338E6D /* MKGPUImageTwoInputFilter.m */,
+				E883CD92237906E600666757 /* MKGPUImageFilterGroup.h */,
+				E883CD93237906E600666757 /* MKGPUImageFilterGroup.m */,
+				E8C76E27237CF71A002C3170 /* MKGPUImageGaussianBlurFilter.h */,
+				E8C76E28237CF71A002C3170 /* MKGPUImageGaussianBlurFilter.m */,
 			);
 			path = Filters;
 			sourceTree = "<group>";
@@ -451,6 +471,27 @@
 			path = DynamicSticker;
 			sourceTree = "<group>";
 		};
+		E8C76E68237FE4CE002C3170 /* MKVideo */ = {
+			isa = PBXGroup;
+			children = (
+				E8C76E6C237FEA03002C3170 /* View */,
+				E8C76E69237FE9C8002C3170 /* MKBaseVideoCamera.h */,
+				E8C76E6A237FE9C8002C3170 /* MKBaseVideoCamera.m */,
+			);
+			path = MKVideo;
+			sourceTree = "<group>";
+		};
+		E8C76E6C237FEA03002C3170 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				E8C76E6D237FEA2D002C3170 /* MKShootRecordView.h */,
+				E8C76E6E237FEA2D002C3170 /* MKShootRecordView.m */,
+				E8C76E70237FEBD1002C3170 /* MKPreviewView.h */,
+				E8C76E71237FEBD1002C3170 /* MKPreviewView.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -585,7 +626,9 @@
 				E80C213D2320AFF400331BBE /* MKGPUImageContext.m in Sources */,
 				E80C21382320AFF400331BBE /* MKGPUImageTextureInput.m in Sources */,
 				E80C21522320B05800331BBE /* MKCameraFilterView.m in Sources */,
+				E8C76E6B237FE9C8002C3170 /* MKBaseVideoCamera.m in Sources */,
 				E877A7D3236936DA008F1631 /* MKFaceBaseData.m in Sources */,
+				E883CD94237906E600666757 /* MKGPUImageFilterGroup.m in Sources */,
 				E80C21502320B05800331BBE /* MKEffectFilter.m in Sources */,
 				E80C21372320AFF400331BBE /* MKGPUImageFramebufferCache.m in Sources */,
 				E80C213B2320AFF400331BBE /* MKGPUImageFramebuffer.m in Sources */,
@@ -594,10 +637,13 @@
 				E80C21392320AFF400331BBE /* MKGPUImageOutput.m in Sources */,
 				E80C21532320B05800331BBE /* MKCameraView.m in Sources */,
 				E80C20D2231F5D6A00331BBE /* main.m in Sources */,
+				E8C76E6F237FEA2D002C3170 /* MKShootRecordView.m in Sources */,
 				E8ABF678237115C600BEEAB8 /* MKLandmarkEngine.m in Sources */,
 				E80C21362320AFF400331BBE /* MKGPUImageFilter.m in Sources */,
 				E80C21442320B02400331BBE /* GPUImageBeautifyFilter.m in Sources */,
 				E83186AB2340C9CC00138AA6 /* MKGPUImageDynamicSticker2DFilter.m in Sources */,
+				E8C76E29237CF71A002C3170 /* MKGPUImageGaussianBlurFilter.m in Sources */,
+				E8C76E72237FEBD1002C3170 /* MKPreviewView.m in Sources */,
 				E80C213F2320AFF400331BBE /* MKLandmarkManager.m in Sources */,
 				E80C20EE231F62BA00331BBE /* MGFaceLicenseHandle.m in Sources */,
 				E80C20C4231F5D6700331BBE /* AppDelegate.m in Sources */,
