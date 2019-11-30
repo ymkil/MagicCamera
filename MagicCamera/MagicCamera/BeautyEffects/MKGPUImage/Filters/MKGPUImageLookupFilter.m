@@ -95,6 +95,7 @@ NSString *const kMKGPUImageLookupFragmentShaderString = SHADER_STRING
     
     self.intensity = 0.0f;
     self.lookup = [UIImage imageNamed:@"lookup.png"];
+    updateLookupTexture = YES;
     
     return self;
 }

@@ -10,6 +10,10 @@
 #import "MKFaceBaseData.h"
 #import "MKTool.h"
 
+#import "MGFaceLicenseHandle.h"
+
+NSString * _Nullable const MKLandmarkAuthorizationNotificationName = @"MKLandmarkAuthorizationActivateNotificationName";
+
 static MKLandmarkManager *manager = nil;
 
 @implementation MKLandmarkManager
@@ -21,6 +25,20 @@ static MKLandmarkManager *manager = nil;
     });
     
     return manager;
+}
+
+- (void)faceLicenseAuthorization {
+    [MGFaceLicenseHandle licenseForNetwokrFinish:^(bool License, NSDate *sdkDate) {
+        if (!License) {
+            NSLog(@"联网授权失败!!");
+            self.isAuthorization = NO;
+            [[NSNotificationCenter defaultCenter] postNotificationName:MKLandmarkAuthorizationNotificationName object:nil userInfo:@{@"isActivate":@"0"}];
+        } else {
+            NSLog(@"联网授权成功");
+            self.isAuthorization = YES;
+            [[NSNotificationCenter defaultCenter] postNotificationName:MKLandmarkAuthorizationNotificationName object:nil userInfo:@{@"isActivate":@"1"}];
+        }
+    }];
 }
 
 -(void)setFaceData:(NSArray *)faceData

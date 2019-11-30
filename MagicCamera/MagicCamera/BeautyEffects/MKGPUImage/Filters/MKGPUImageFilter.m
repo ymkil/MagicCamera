@@ -256,7 +256,7 @@ NSString *const kMKGPUImagePassthroughFragmentShaderString = SHADER_STRING
 }
 
 #pragma mark -
-#pragma mark AYGPUImageInput
+#pragma mark MKGPUImageInput
 
 - (void)setInputSize:(CGSize)newSize;
 {

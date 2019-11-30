@@ -7,7 +7,6 @@
 //
 
 #import "AppDelegate.h"
-#import "MGFaceLicenseHandle.h"
 
 @interface AppDelegate ()
 
@@ -18,14 +17,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    
-    [MGFaceLicenseHandle licenseForNetwokrFinish:^(bool License, NSDate *sdkDate) {
-        if (!License) {
-            NSLog(@"联网授权失败!!");
-        } else {
-            NSLog(@"联网授权成功");
-        }
-    }];
     
     return YES;
 }

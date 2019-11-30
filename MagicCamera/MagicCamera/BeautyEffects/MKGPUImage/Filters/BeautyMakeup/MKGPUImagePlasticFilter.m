@@ -225,6 +225,7 @@ vec2 chinChange(vec2 currentCoordinate, float faceLength)
         
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, [firstInputFramebuffer texture]);
+        glUniform1i(filterInputTextureUniform, 2);
         
         int length = sizeof(vertexPoints)/sizeof(vertexPoints[0]);
         

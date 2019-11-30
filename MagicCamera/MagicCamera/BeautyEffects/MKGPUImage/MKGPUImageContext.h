@@ -42,6 +42,9 @@ void runMSynchronouslyOnContextQueue(MKGPUImageContext *context, void (^block)(v
 
 - (CGSize)sizeThatFitsWithinATextureForSize:(CGSize)inputSize;
 
+// Manage fast texture upload
++ (BOOL)supportsFastTextureUpload;
+
 @end
 
 @protocol MKGPUImageInput <NSObject>

@@ -22,11 +22,7 @@
 {
     self = [super init];
     if (self) {
-        runSynchronouslyOnVideoProcessingQueue(^{
-            [GPUImageContext useImageProcessingContext];
-            
-            _effectHandler = [[MKEffectHandler alloc] initWithProcessTexture:YES];
-        });
+        _effectHandler = [[MKEffectHandler alloc] initWithProcessTexture:YES];
     }
     return self;
 }

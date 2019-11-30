@@ -12,6 +12,8 @@
 #import <OpenGLES/ES2/gl.h>
 #import <Foundation/Foundation.h>
 
+#define MKGPUImageRotationSwapsWidthAndHeight(rotation) ((rotation) == kMKGPUImageRotateLeft || (rotation) == kMKGPUImageRotateRight || (rotation) == kMKGPUImageRotateRightFlipVertical || (rotation) == kMKGPUImageRotateRightFlipHorizontal)
+
 typedef struct MKGPUTextureOptions {
     GLenum minFilter;
     GLenum magFilter;

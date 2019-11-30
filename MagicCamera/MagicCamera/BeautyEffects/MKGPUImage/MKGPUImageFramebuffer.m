@@ -219,7 +219,7 @@
 
 - (void)lockForReading
 {
-    //    if ([AYGPUImageContext supportsFastTextureUpload])
+    //    if ([MKGPUImageContext supportsFastTextureUpload])
     //    {
     if (readLockCount == 0)
     {
@@ -231,7 +231,7 @@
 
 - (void)unlockAfterReading
 {
-    //    if ([AYGPUImageContext supportsFastTextureUpload])
+    //    if ([MKGPUImageContext supportsFastTextureUpload])
     //    {
     NSAssert(readLockCount > 0, @"Unbalanced call to -[MKGPUImageFramebuffer unlockAfterReading]");
     readLockCount--;
@@ -244,7 +244,7 @@
 
 - (NSUInteger)bytesPerRow;
 {
-    //    if ([AYGPUImageContext supportsFastTextureUpload])
+    //    if ([MKGPUImageContext supportsFastTextureUpload])
     //    {
     return CVPixelBufferGetBytesPerRow(renderTarget);
     //    }

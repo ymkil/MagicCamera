@@ -15,6 +15,8 @@
 @interface MKGPUImageFramebufferCache()
 {
     NSMutableDictionary *framebufferCache;
+    
+    id memoryWarningObserver;
 }
 
 @property (nonatomic, weak) MKGPUImageContext *context;
@@ -40,12 +42,26 @@
     
     framebufferCache = [[NSMutableDictionary alloc] init];
     
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+    __unsafe_unretained __typeof__ (self) weakSelf = self;
+    memoryWarningObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidReceiveMemoryWarningNotification object:nil queue:nil usingBlock:^(NSNotification *note) {
+        __typeof__ (self) strongSelf = weakSelf;
+        if (strongSelf) {
+            [strongSelf purgeAllUnassignedFramebuffers];
+        }
+    }];
+#else
+#endif
+    
     return self;
 }
 
 - (void)dealloc;
 {
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+#else
+#endif
 }
 
 #pragma mark -
@@ -119,6 +135,19 @@
         [framebufferCache setObject:frameBufferArr forKey:lookupHash];
         
     });
+}
+
+- (void)purgeAllUnassignedFramebuffers;
+{
+    runMSynchronouslyOnContextQueue(self.context, ^{
+        //    dispatch_async(framebufferCacheQueue, ^{
+        [framebufferCache removeAllObjects];
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+        CVOpenGLESTextureCacheFlush([self.context coreVideoTextureCache], 0);
+#else
+#endif
+    });
+    
 }
 
 

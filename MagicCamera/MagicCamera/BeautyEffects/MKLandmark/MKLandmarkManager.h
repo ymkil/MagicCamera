@@ -11,9 +11,15 @@
 
 #import "MGFacepp.h"
 
+extern NSString * _Nullable const MKLandmarkAuthorizationNotificationName;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MKLandmarkManager : NSObject
+
+// 是否已经授权
+@property (nonatomic, assign) BOOL isAuthorization;
+
 // 人脸数据 [MKFaceInfo]
 @property (nonatomic, strong) NSArray *faceData;
 // 检测人脸图片的宽度
@@ -22,6 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) CGFloat detectionHeight;
 
 + (instancetype)shareManager;
+
+// 人脸SDK授权
+- (void)faceLicenseAuthorization;
 
 // 像素坐标点转换成位置坐标
 -(NSArray<NSValue *> *)conversionCoordinatePoint:(NSArray<NSValue *> *)pixelPoints;
