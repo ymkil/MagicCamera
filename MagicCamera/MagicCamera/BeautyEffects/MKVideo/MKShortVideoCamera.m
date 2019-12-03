@@ -408,7 +408,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     
     glVertexAttribPointer(yuvConversionPositionAttribute, 2, GL_FLOAT, 0, 0, squareVertices);
     glVertexAttribPointer(yuvConversionTextureCoordinateAttribute, 2, GL_FLOAT, 0, 0, [MKGPUImageFilter textureCoordinatesForRotation:internalRotation]);
-
+    
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 

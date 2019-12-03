@@ -28,17 +28,24 @@ static MKLandmarkManager *manager = nil;
 }
 
 - (void)faceLicenseAuthorization {
-    [MGFaceLicenseHandle licenseForNetwokrFinish:^(bool License, NSDate *sdkDate) {
-        if (!License) {
-            NSLog(@"联网授权失败!!");
-            self.isAuthorization = NO;
-            [[NSNotificationCenter defaultCenter] postNotificationName:MKLandmarkAuthorizationNotificationName object:nil userInfo:@{@"isActivate":@"0"}];
-        } else {
-            NSLog(@"联网授权成功");
-            self.isAuthorization = YES;
-            [[NSNotificationCenter defaultCenter] postNotificationName:MKLandmarkAuthorizationNotificationName object:nil userInfo:@{@"isActivate":@"1"}];
-        }
-    }];
+    /*
+     *  第一次授权时会报错，延迟授权后解决(具体原因未知)
+     *  错误信息: [AGXA11FamilyCommandBuffer renderCommandEncoderWithDescriptor:], line 114: error 'A command encoder is already encoding to this command buffer
+     *
+     */
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [MGFaceLicenseHandle licenseForNetwokrFinish:^(bool License, NSDate *sdkDate) {
+            if (!License) {
+                NSLog(@"联网授权失败!!");
+                self.isAuthorization = NO;
+                [[NSNotificationCenter defaultCenter] postNotificationName:MKLandmarkAuthorizationNotificationName object:nil userInfo:@{@"isActivate":@"0"}];
+            } else {
+                NSLog(@"联网授权成功");
+                self.isAuthorization = YES;
+                [[NSNotificationCenter defaultCenter] postNotificationName:MKLandmarkAuthorizationNotificationName object:nil userInfo:@{@"isActivate":@"1"}];
+            }
+        }];
+    });
 }
 
 -(void)setFaceData:(NSArray *)faceData
