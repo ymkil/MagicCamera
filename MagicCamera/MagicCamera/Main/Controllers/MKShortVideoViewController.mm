@@ -6,7 +6,6 @@
 //  Copyright © 2019 黎宁康. All rights reserved.
 //
 
-// 自定义摄像头采集部分，调试中
 /*
  *  抽离的MKGPUImage 没有GPUImage强大的基础滤镜，所以暂时为抽离GPUImageBeautifyFilter的美颜效果，
  *  采用的另外一种 MKGPUImageBeautifyFilter 比较消耗CPU，会出现卡顿现象，后续待优化
