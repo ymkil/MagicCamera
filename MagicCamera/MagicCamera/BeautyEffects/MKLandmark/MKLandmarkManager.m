@@ -33,7 +33,7 @@ static MKLandmarkManager *manager = nil;
      *  错误信息: [AGXA11FamilyCommandBuffer renderCommandEncoderWithDescriptor:], line 114: error 'A command encoder is already encoding to this command buffer
      *
      */
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
         [MGFaceLicenseHandle licenseForNetwokrFinish:^(bool License, NSDate *sdkDate) {
             if (!License) {
                 NSLog(@"联网授权失败!!");
@@ -45,7 +45,7 @@ static MKLandmarkManager *manager = nil;
                 [[NSNotificationCenter defaultCenter] postNotificationName:MKLandmarkAuthorizationNotificationName object:nil userInfo:@{@"isActivate":@"1"}];
             }
         }];
-    });
+//    });
 }
 
 -(void)setFaceData:(NSArray *)faceData

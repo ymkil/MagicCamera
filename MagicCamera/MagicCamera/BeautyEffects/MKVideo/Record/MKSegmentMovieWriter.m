@@ -428,7 +428,6 @@ NSString *const kMKGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
     
     NSString *filePath = [segmentMoviePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@",[self getCurrentDate],fileType]];
     NSURL *url = [NSURL fileURLWithPath:filePath];
-    [self deleteTempVideoFile];
 
     return url;
 }

@@ -58,6 +58,9 @@
 		E8C76E6B237FE9C8002C3170 /* MKBaseVideoCamera.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C76E6A237FE9C8002C3170 /* MKBaseVideoCamera.m */; };
 		E8C76E6F237FEA2D002C3170 /* MKShootRecordView.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C76E6E237FEA2D002C3170 /* MKShootRecordView.m */; };
 		E8C76E72237FEBD1002C3170 /* MKPreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = E8C76E71237FEBD1002C3170 /* MKPreviewView.m */; };
+		E8D3BCF5239B3612002DBFA8 /* MKVideoAssetAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = E8D3BCF4239B3612002DBFA8 /* MKVideoAssetAdapter.m */; };
+		E8D3BCF8239B3B85002DBFA8 /* MKSegmentVideoAssetAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = E8D3BCF7239B3B85002DBFA8 /* MKSegmentVideoAssetAdapter.m */; };
+		E8D3BCFB239B3D63002DBFA8 /* MKVideoEditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E8D3BCFA239B3D63002DBFA8 /* MKVideoEditViewController.m */; };
 		E8D53C672390B5ED007C3EB8 /* MKOverlayView.m in Sources */ = {isa = PBXBuildFile; fileRef = E8D53C662390B5ED007C3EB8 /* MKOverlayView.m */; };
 		E8D53C6A23910665007C3EB8 /* MKGPUImageBeautifyFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = E8D53C6923910665007C3EB8 /* MKGPUImageBeautifyFilter.m */; };
 		E8F0504923711D2800048153 /* lut.png in Resources */ = {isa = PBXBuildFile; fileRef = E8F0504823711D2800048153 /* lut.png */; };
@@ -172,6 +175,12 @@
 		E8C76E6E237FEA2D002C3170 /* MKShootRecordView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKShootRecordView.m; sourceTree = "<group>"; };
 		E8C76E70237FEBD1002C3170 /* MKPreviewView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKPreviewView.h; sourceTree = "<group>"; };
 		E8C76E71237FEBD1002C3170 /* MKPreviewView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKPreviewView.m; sourceTree = "<group>"; };
+		E8D3BCF3239B3612002DBFA8 /* MKVideoAssetAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKVideoAssetAdapter.h; sourceTree = "<group>"; };
+		E8D3BCF4239B3612002DBFA8 /* MKVideoAssetAdapter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKVideoAssetAdapter.m; sourceTree = "<group>"; };
+		E8D3BCF6239B3B85002DBFA8 /* MKSegmentVideoAssetAdapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKSegmentVideoAssetAdapter.h; sourceTree = "<group>"; };
+		E8D3BCF7239B3B85002DBFA8 /* MKSegmentVideoAssetAdapter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKSegmentVideoAssetAdapter.m; sourceTree = "<group>"; };
+		E8D3BCF9239B3D63002DBFA8 /* MKVideoEditViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKVideoEditViewController.h; sourceTree = "<group>"; };
+		E8D3BCFA239B3D63002DBFA8 /* MKVideoEditViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKVideoEditViewController.m; sourceTree = "<group>"; };
 		E8D53C652390B5ED007C3EB8 /* MKOverlayView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKOverlayView.h; sourceTree = "<group>"; };
 		E8D53C662390B5ED007C3EB8 /* MKOverlayView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MKOverlayView.m; sourceTree = "<group>"; };
 		E8D53C6823910665007C3EB8 /* MKGPUImageBeautifyFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MKGPUImageBeautifyFilter.h; sourceTree = "<group>"; };
@@ -211,6 +220,30 @@
 				6E640C34B4BF76254F9EFD70 /* Pods-MagicCamera.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		E80292AB239A37A2008261D0 /* Record */ = {
+			isa = PBXGroup;
+			children = (
+				E8C76E69237FE9C8002C3170 /* MKBaseVideoCamera.h */,
+				E8C76E6A237FE9C8002C3170 /* MKBaseVideoCamera.m */,
+				E8310DD02382424700FB2D6C /* MKShortVideoCamera.h */,
+				E8310DD12382424700FB2D6C /* MKShortVideoCamera.m */,
+				E8732E4D23890E1F00EA2146 /* MKSegmentMovieWriter.h */,
+				E8732E4E23890E1F00EA2146 /* MKSegmentMovieWriter.m */,
+				E8C76E6C237FEA03002C3170 /* View */,
+			);
+			path = Record;
+			sourceTree = "<group>";
+		};
+		E80292AC239A37E3008261D0 /* Edit */ = {
+			isa = PBXGroup;
+			children = (
+				E8D3BCEF239B34D7002DBFA8 /* Adapter */,
+				E8D3BCF9239B3D63002DBFA8 /* MKVideoEditViewController.h */,
+				E8D3BCFA239B3D63002DBFA8 /* MKVideoEditViewController.m */,
+			);
+			path = Edit;
 			sourceTree = "<group>";
 		};
 		E80C20B6231F5D6700331BBE = {
@@ -507,13 +540,8 @@
 		E8C76E68237FE4CE002C3170 /* MKVideo */ = {
 			isa = PBXGroup;
 			children = (
-				E8C76E6C237FEA03002C3170 /* View */,
-				E8C76E69237FE9C8002C3170 /* MKBaseVideoCamera.h */,
-				E8C76E6A237FE9C8002C3170 /* MKBaseVideoCamera.m */,
-				E8310DD02382424700FB2D6C /* MKShortVideoCamera.h */,
-				E8310DD12382424700FB2D6C /* MKShortVideoCamera.m */,
-				E8732E4D23890E1F00EA2146 /* MKSegmentMovieWriter.h */,
-				E8732E4E23890E1F00EA2146 /* MKSegmentMovieWriter.m */,
+				E80292AC239A37E3008261D0 /* Edit */,
+				E80292AB239A37A2008261D0 /* Record */,
 			);
 			path = MKVideo;
 			sourceTree = "<group>";
@@ -529,6 +557,17 @@
 				E8732E52238BCE6700EA2146 /* MKRecordProgressView.m */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		E8D3BCEF239B34D7002DBFA8 /* Adapter */ = {
+			isa = PBXGroup;
+			children = (
+				E8D3BCF3239B3612002DBFA8 /* MKVideoAssetAdapter.h */,
+				E8D3BCF4239B3612002DBFA8 /* MKVideoAssetAdapter.m */,
+				E8D3BCF6239B3B85002DBFA8 /* MKSegmentVideoAssetAdapter.h */,
+				E8D3BCF7239B3B85002DBFA8 /* MKSegmentVideoAssetAdapter.m */,
+			);
+			path = Adapter;
 			sourceTree = "<group>";
 		};
 		E8D53C642390B59F007C3EB8 /* Controllers */ = {
@@ -666,9 +705,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E8D3BCF5239B3612002DBFA8 /* MKVideoAssetAdapter.m in Sources */,
 				E8310DD52382B6B100FB2D6C /* MKShortEffectHandler.m in Sources */,
 				E80C20C7231F5D6700331BBE /* MKShortVideoViewController.mm in Sources */,
 				E8F0504E2372662C00048153 /* MKGPUImageBeautyMakeupFilter.m in Sources */,
+				E8D3BCFB239B3D63002DBFA8 /* MKVideoEditViewController.m in Sources */,
 				E8C39462234D7C90003FDB88 /* MKTool.m in Sources */,
 				E80C213C2320AFF400331BBE /* MKGPUImageTextureOutput.m in Sources */,
 				E82F42C323273D6100A81E4C /* MKGPUImageLookupFilter.m in Sources */,
@@ -704,6 +745,7 @@
 				E8732E4F23890E1F00EA2146 /* MKSegmentMovieWriter.m in Sources */,
 				E80C21332320AFF400331BBE /* MKGLProgram.m in Sources */,
 				E80C21342320AFF400331BBE /* MKGPUImageKeyPointFilter.m in Sources */,
+				E8D3BCF8239B3B85002DBFA8 /* MKSegmentVideoAssetAdapter.m in Sources */,
 				E8521B262364481600338E6D /* MKGPUImageTwoInputFilter.m in Sources */,
 				E8D53C6A23910665007C3EB8 /* MKGPUImageBeautifyFilter.m in Sources */,
 				E80C21512320B05800331BBE /* MKFilterModel.m in Sources */,

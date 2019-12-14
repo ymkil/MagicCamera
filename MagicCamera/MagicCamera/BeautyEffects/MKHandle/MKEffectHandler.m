@@ -11,6 +11,7 @@
 #import "MKGPUImageTextureOutput.h"
 
 #import "MGFaceLicenseHandle.h"
+#import "MKLandmarkManager.h"
 #import "MKGPUImageTrackOutput.h"
 
 #import "MKGPUImageKeyPointFilter.h"
@@ -76,7 +77,9 @@
         _commonInputFilter = [[MKGPUImageFilter alloc] initWithContext:_glContext];
         _commonOutputFilter = [[MKGPUImageFilter alloc] initWithContext:_glContext];
 
-        _trackOutput = [[MKGPUImageTrackOutput alloc] initWithContext:_glContext];
+        if ([self activateFaceSDK]) {
+            _trackOutput = [[MKGPUImageTrackOutput alloc] initWithContext:_glContext];
+        }
         
         _keyPointfilter = [[MKGPUImageKeyPointFilter alloc] initWithContext:_glContext];
         _lookupFilter = [[MKGPUImageLookupFilter alloc] initWithContext:_glContext];
@@ -209,10 +212,43 @@
     self.commonOutputFilter = NULL;
 
     self.glContext = NULL;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)dealloc{
     [self destroy];
+}
+
+#pragma mark-
+#pragma mark ActivateFaceSDKNotification
+
+- (BOOL)activateFaceSDK {
+    
+    if (!MKLandmarkManager.shareManager.isAuthorization) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activateFaceSDKClick:) name:MKLandmarkAuthorizationNotificationName object:nil];
+        [MKLandmarkManager.shareManager faceLicenseAuthorization];
+        return NO;
+    }
+    return YES;
+}
+
+- (void)activateFaceSDKClick:(NSNotification *)notification
+{
+    NSString *isactivate = notification.userInfo[@"isActivate"];
+    if ([isactivate isEqualToString:@"1"]) {      // 激活成功
+        // 启动人脸检测
+        [self activateFaceDetect];
+    } else {                                    // 激活失败
+        
+    }
+}
+- (void)activateFaceDetect
+{
+    if (_trackOutput == nil) {
+        _trackOutput = [[MKGPUImageTrackOutput alloc] initWithContext:_glContext];
+        [self.commonInputFilter addTarget:self.trackOutput];
+    }
 }
 
 #pragma mark -

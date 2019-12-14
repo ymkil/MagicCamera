@@ -551,21 +551,21 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 - (void)didWriteMovieAtURL:(NSURL *)outputURL {
     [self.delegate didWriteMovieAtURL:outputURL];
     
-    ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-    
-    if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputURL]) {
-        
-        ALAssetsLibraryWriteVideoCompletionBlock completionBlock;
-        
-        completionBlock = ^(NSURL *assetURL, NSError *error){
-            if (error) {
-                //                [self.delegate assetLibraryWriteFailedWithError:error];
-            }
-        };
-        
-        [library writeVideoAtPathToSavedPhotosAlbum:outputURL
-                                    completionBlock:completionBlock];
-    }
+//    ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+//    
+//    if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputURL]) {
+//        
+//        ALAssetsLibraryWriteVideoCompletionBlock completionBlock;
+//        
+//        completionBlock = ^(NSURL *assetURL, NSError *error){
+//            if (error) {
+//                //                [self.delegate assetLibraryWriteFailedWithError:error];
+//            }
+//        };
+//        
+//        [library writeVideoAtPathToSavedPhotosAlbum:outputURL
+//                                    completionBlock:completionBlock];
+//    }
 }
 
 - (void)dealloc

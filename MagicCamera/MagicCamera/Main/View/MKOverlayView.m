@@ -319,6 +319,10 @@
 {
     [self.videoTimer invalidate];
     [_progressView drawDelete];
+    
+    if ([self.delegate respondsToSelector:@selector(deleteUpSegment)]) {
+        [self.delegate deleteUpSegment];
+    }
 }
 
 - (void)recordProgressClick {
