@@ -88,7 +88,6 @@ static int specificKey;
     self = [super init];
     if (self) {
         shaderProgramCache = [[NSMutableDictionary alloc] init];
-        
         _context = [EAGLContext currentContext];
     }
     return self;

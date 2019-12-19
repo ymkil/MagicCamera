@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "MKLandmarkManager.h"
 
 @interface AppDelegate ()
 
@@ -17,7 +18,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    
+    [MKLandmarkManager.shareManager faceLicenseAuthorization];
     return YES;
 }
 

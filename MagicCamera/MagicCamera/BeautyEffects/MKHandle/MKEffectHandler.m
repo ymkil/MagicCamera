@@ -77,7 +77,7 @@
         _commonInputFilter = [[MKGPUImageFilter alloc] initWithContext:_glContext];
         _commonOutputFilter = [[MKGPUImageFilter alloc] initWithContext:_glContext];
 
-        if ([self activateFaceSDK]) {
+        if (MKLandmarkManager.shareManager.isAuthorization) {
             _trackOutput = [[MKGPUImageTrackOutput alloc] initWithContext:_glContext];
         }
         
@@ -120,7 +120,7 @@
         [filterChainArray addObject:self.keyPointfilter];
         [filterChainArray addObject:self.test];
        
-        if (![MGFaceLicenseHandle getLicense]) {
+        if (MKLandmarkManager.shareManager.isAuthorization) {
             [self.commonInputFilter addTarget:self.trackOutput];
         }
         
@@ -220,36 +220,6 @@
     [self destroy];
 }
 
-#pragma mark-
-#pragma mark ActivateFaceSDKNotification
-
-- (BOOL)activateFaceSDK {
-    
-    if (!MKLandmarkManager.shareManager.isAuthorization) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(activateFaceSDKClick:) name:MKLandmarkAuthorizationNotificationName object:nil];
-        [MKLandmarkManager.shareManager faceLicenseAuthorization];
-        return NO;
-    }
-    return YES;
-}
-
-- (void)activateFaceSDKClick:(NSNotification *)notification
-{
-    NSString *isactivate = notification.userInfo[@"isActivate"];
-    if ([isactivate isEqualToString:@"1"]) {      // 激活成功
-        // 启动人脸检测
-        [self activateFaceDetect];
-    } else {                                    // 激活失败
-        
-    }
-}
-- (void)activateFaceDetect
-{
-    if (_trackOutput == nil) {
-        _trackOutput = [[MKGPUImageTrackOutput alloc] initWithContext:_glContext];
-        [self.commonInputFilter addTarget:self.trackOutput];
-    }
-}
 
 #pragma mark -
 #pragma mark handle

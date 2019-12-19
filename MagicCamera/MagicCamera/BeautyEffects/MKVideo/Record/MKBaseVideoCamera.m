@@ -118,19 +118,15 @@
 }
 
 - (void)startSession {
-    dispatch_async(self.audioProcessingQueue, ^{
-        if (![self.captureSession isRunning]) {
-            [self.captureSession startRunning];
-        }
-    });
+    if (![self.captureSession isRunning]) {
+        [self.captureSession startRunning];
+    }
 }
 
 - (void)stopSession {
-    dispatch_async(self.audioProcessingQueue, ^{
-        if ([self.captureSession isRunning]) {
-            [self.captureSession stopRunning];
-        }
-    });
+    if ([self.captureSession isRunning]) {
+        [self.captureSession stopRunning];
+    }
 }
 
 #pragma mark -

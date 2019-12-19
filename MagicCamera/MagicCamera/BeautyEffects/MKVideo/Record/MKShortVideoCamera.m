@@ -63,6 +63,9 @@
     }
 
     _myContext = [[MKGPUImageContext alloc] initWithCurrentGLContext];
+    if (_myContext.context == nil) {
+        _myContext = [[MKGPUImageContext alloc] initWithNewGLContext];
+    }
     
     outputRotation = kMKGPUImageNoRotation;
     internalRotation = kMKGPUImageNoRotation;
@@ -346,16 +349,18 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
         rotatedImageBufferHeight = bufferWidth;
     }
     
-    if ([self.delegate respondsToSelector:@selector(effectsProcessingTexture:inputSize:rotateMode:)]) {
-        [self.delegate effectsProcessingTexture:textureId inputSize:CGSizeMake(imageBufferWidth, imageBufferHeight) rotateMode:outputRotation];
+    runMSynchronouslyOnContextQueue(_myContext, ^{
+        if ([self.delegate respondsToSelector:@selector(effectsProcessingTexture:inputSize:rotateMode:)]) {
+            [self.delegate effectsProcessingTexture:textureId inputSize:CGSizeMake(imageBufferWidth, imageBufferHeight) rotateMode:outputRotation];
+        }
+    });
+
+    if ([self.delegate respondsToSelector:@selector(renderTexture:inputSize:rotateMode:)]) {
+        [self.delegate renderTexture:textureId inputSize:CGSizeMake(rotatedImageBufferWidth, rotatedImageBufferHeight) rotateMode:outputRotation];
     }
     
     [_segmentMovieWriter processVideoTextureId:textureId AtRotationMode:outputRotation AtTime:currentTime];
     
-    if ([self.delegate respondsToSelector:@selector(renderTexture:inputSize:rotateMode:)]) {
-        [self.delegate renderTexture:textureId inputSize:CGSizeMake(rotatedImageBufferWidth, rotatedImageBufferHeight) rotateMode:outputRotation];
-    }
-
     [_outputFramebuffer unlock];
     _outputFramebuffer = nil;
 }

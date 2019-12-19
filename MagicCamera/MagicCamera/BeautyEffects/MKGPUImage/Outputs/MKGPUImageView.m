@@ -15,7 +15,7 @@
 
 @interface MKGPUImageView()
 {
-    EAGLContext *myContext;
+    MKGPUImageContext *myContext;
     
     MKGPUImageFramebuffer *inputFramebufferForDisplay;
     GLuint displayRenderbuffer, displayFramebuffer;
@@ -79,43 +79,60 @@
     
     inputRotation = kMKGPUImageNoRotation;
     
+    self.opaque = YES;
+    self.hidden = NO;
+    
     CAEAGLLayer *eagLayer = (CAEAGLLayer *)self.layer;
     // CALayer 默认是透明的，必须将它设为不透明才能让其可见
     eagLayer.opaque = YES;
     // 设置描绘属性，在这里设置不维持渲染内容以及颜色格式为 RGBA8
     eagLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
-    [self setupContext];
-    [self setupProgram];
+  
     
-    [self setBackgroundColorRed:0.0 green:0.0 blue:0.0 alpha:1.0];
-    
-}
-
-- (void)setupContext {
-    myContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-    if (myContext == nil) {
-        NSLog(@"Failed to initialize OpenGLES 2.0 context");
-        return;
+    myContext = [[MKGPUImageContext alloc] initWithCurrentGLContext];
+    if (myContext.context == nil) {
+        myContext = [[MKGPUImageContext alloc] initWithNewGLContext];
     }
     
-    if (![EAGLContext setCurrentContext:myContext]) {
-        NSLog(@"Failed to set current OpenGL context");
-        return;
-    }
+    runMSynchronouslyOnContextQueue(myContext, ^{
+        [myContext useAsCurrentContext];
+        displayProgram = [[MKGLProgram alloc] initWithVertexShaderString:kMKGPUImageVertexShaderString fragmentShaderString:kMKGPUImagePassthroughFragmentShaderString];
+        
+        if (![displayProgram link])
+        {
+            NSString *progLog = [displayProgram programLog];
+            NSLog(@"Program link log: %@", progLog);
+            NSString *fragLog = [displayProgram fragmentShaderLog];
+            NSLog(@"Fragment shader compile log: %@", fragLog);
+            NSString *vertLog = [displayProgram vertexShaderLog];
+            NSLog(@"Vertex shader compile log: %@", vertLog);
+            displayProgram = nil;
+            NSAssert(NO, @"Filter shader link failed");
+        }
+        
+        displayPositionAttribute = [displayProgram attributeIndex:@"position"];
+        displayTextureCoordinateAttribute = [displayProgram attributeIndex:@"inputTextureCoordinate"];
+        displayInputTextureUniform = [displayProgram uniformIndex:@"inputImageTexture"];
+        
+        [displayProgram use];
+        [self setBackgroundColorRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+        [self createDisplayFramebuffer];
+    });
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    [EAGLContext setCurrentContext:myContext];
-    
-    [self destoryRenderAndFrameBuffer];
-    [self createDisplayFramebuffer];
-    [self render];
+    runMSynchronouslyOnContextQueue(myContext, ^{
+        [self destoryRenderAndFrameBuffer];
+        [self createDisplayFramebuffer];
+//        [self render];
+    });
 }
 
 - (void)destoryRenderAndFrameBuffer
 {
 //    当 UIView 在进行布局变化之后，由于 layer 的宽高变化，导致原来创建的 renderbuffer不再相符，我们需要销毁既有 renderbuffer 和 framebuffer。下面，我们依然创建私有方法 destoryRenderAndFrameBuffer 来销毁生成的 buffer
+    [myContext useAsCurrentContext];
     if (displayFramebuffer)
     {
         glDeleteFramebuffers(1, &displayFramebuffer);
@@ -131,15 +148,18 @@
 
 - (void)createDisplayFramebuffer
 {
+    [myContext useAsCurrentContext];
     glGenFramebuffers(1, &displayFramebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, displayFramebuffer);
     
     glGenRenderbuffers(1, &displayRenderbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, displayRenderbuffer);
     
-    [myContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
+    if (![myContext.context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer])
+    {
+        NSLog(@"failed to call context");
+    }
 
-    
     GLint backingWidth, backingHeight;
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
@@ -156,34 +176,12 @@
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, displayRenderbuffer);
 }
 
-- (void)setupProgram
-{
-    displayProgram = [[MKGLProgram alloc] initWithVertexShaderString:kMKGPUImageVertexShaderString fragmentShaderString:kMKGPUImagePassthroughFragmentShaderString];
-    
-    if (![displayProgram link])
-    {
-        NSString *progLog = [displayProgram programLog];
-        NSLog(@"Program link log: %@", progLog);
-        NSString *fragLog = [displayProgram fragmentShaderLog];
-        NSLog(@"Fragment shader compile log: %@", fragLog);
-        NSString *vertLog = [displayProgram vertexShaderLog];
-        NSLog(@"Vertex shader compile log: %@", vertLog);
-        displayProgram = nil;
-        NSAssert(NO, @"Filter shader link failed");
-    }
-    
-    displayPositionAttribute = [displayProgram attributeIndex:@"position"];
-    displayTextureCoordinateAttribute = [displayProgram attributeIndex:@"inputTextureCoordinate"];
-    displayInputTextureUniform = [displayProgram uniformIndex:@"inputImageTexture"];
-    
-    [displayProgram use];
-}
-
 #pragma mark -
 #pragma mark render
 
 - (void)render
 {
+    [myContext useAsCurrentContext];
     [displayProgram use];
     
     glBindFramebuffer(GL_FRAMEBUFFER, displayFramebuffer);
@@ -206,7 +204,7 @@
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
-    [myContext presentRenderbuffer:GL_RENDERBUFFER];
+    [myContext presentBufferForDisplay];
     if (inputFramebufferForDisplay != nil) {
         [inputFramebufferForDisplay unlock];
         inputFramebufferForDisplay = nil;
